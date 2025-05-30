@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Clock, 
   ChevronLeft, 
@@ -28,10 +28,16 @@ import { toast } from '@/hooks/use-toast';
 const EntranceExam = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [currentSubject, setCurrentSubject] = useState('mathematics');
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<Record<string, number>>({
+    mathematics: 0,
+    english: 0,
+    science: 0,
+    'general-knowledge': 0
+  });
+  const [answers, setAnswers] = useState<Record<string, string>>({});
   const [timeLeft, setTimeLeft] = useState(3600); // 60 minutes in seconds
-  const [flaggedQuestions, setFlaggedQuestions] = useState<Set<number>>(new Set());
+  const [flaggedQuestions, setFlaggedQuestions] = useState<Set<string>>(new Set());
   const [studentInfo, setStudentInfo] = useState({
     firstName: '',
     lastName: '',
@@ -46,65 +52,86 @@ const EntranceExam = () => {
 
   const steps = ['Registration', 'Instructions', 'Examination', 'Completion'];
 
-  // Mock entrance exam questions
-  const examQuestions = [
-    {
-      id: 1,
-      subject: 'Mathematics',
-      question: "If 3x + 7 = 22, what is the value of x?",
-      options: ["x = 5", "x = 4", "x = 6", "x = 3"],
-      correct: 0
-    },
-    {
-      id: 2,
-      subject: 'English',
-      question: "Choose the correct spelling:",
-      options: ["Recieve", "Receive", "Receve", "Receieve"],
-      correct: 1
-    },
-    {
-      id: 3,
-      subject: 'Science',
-      question: "What is the chemical symbol for water?",
-      options: ["H2O", "CO2", "NaCl", "O2"],
-      correct: 0
-    },
-    {
-      id: 4,
-      subject: 'Mathematics',
-      question: "What is 15% of 200?",
-      options: ["25", "30", "35", "40"],
-      correct: 1
-    },
-    {
-      id: 5,
-      subject: 'English',
-      question: "What is the plural of 'child'?",
-      options: ["childs", "children", "childes", "child's"],
-      correct: 1
-    },
-    {
-      id: 6,
-      subject: 'Science',
-      question: "Which planet is closest to the Sun?",
-      options: ["Venus", "Earth", "Mercury", "Mars"],
-      correct: 2
-    },
-    {
-      id: 7,
-      subject: 'General Knowledge',
-      question: "What is the capital of Nigeria?",
-      options: ["Lagos", "Abuja", "Kano", "Port Harcourt"],
-      correct: 1
-    },
-    {
-      id: 8,
-      subject: 'Mathematics',
-      question: "What is the area of a rectangle with length 8cm and width 5cm?",
-      options: ["40 cm²", "26 cm²", "13 cm²", "35 cm²"],
-      correct: 0
-    }
+  // Organized exam questions by subject
+  const examQuestions = {
+    mathematics: [
+      {
+        id: 'math-1',
+        question: "If 3x + 7 = 22, what is the value of x?",
+        options: ["x = 5", "x = 4", "x = 6", "x = 3"],
+        correct: 0
+      },
+      {
+        id: 'math-2',
+        question: "What is 15% of 200?",
+        options: ["25", "30", "35", "40"],
+        correct: 1
+      },
+      {
+        id: 'math-3',
+        question: "What is the area of a rectangle with length 8cm and width 5cm?",
+        options: ["40 cm²", "26 cm²", "13 cm²", "35 cm²"],
+        correct: 0
+      }
+    ],
+    english: [
+      {
+        id: 'eng-1',
+        question: "Choose the correct spelling:",
+        options: ["Recieve", "Receive", "Receve", "Receieve"],
+        correct: 1
+      },
+      {
+        id: 'eng-2',
+        question: "What is the plural of 'child'?",
+        options: ["childs", "children", "childes", "child's"],
+        correct: 1
+      }
+    ],
+    science: [
+      {
+        id: 'sci-1',
+        question: "What is the chemical symbol for water?",
+        options: ["H2O", "CO2", "NaCl", "O2"],
+        correct: 0
+      },
+      {
+        id: 'sci-2',
+        question: "Which planet is closest to the Sun?",
+        options: ["Venus", "Earth", "Mercury", "Mars"],
+        correct: 2
+      }
+    ],
+    'general-knowledge': [
+      {
+        id: 'gk-1',
+        question: "What is the capital of Nigeria?",
+        options: ["Lagos", "Abuja", "Kano", "Port Harcourt"],
+        correct: 1
+      }
+    ]
+  };
+
+  const subjects = [
+    { id: 'mathematics', name: 'Mathematics', color: 'bg-blue-500' },
+    { id: 'english', name: 'English', color: 'bg-green-500' },
+    { id: 'science', name: 'Science', color: 'bg-purple-500' },
+    { id: 'general-knowledge', name: 'General Knowledge', color: 'bg-orange-500' }
   ];
+
+  const getAllQuestions = () => {
+    return Object.values(examQuestions).flat();
+  };
+
+  const getCurrentQuestion = () => {
+    const subjectQuestions = examQuestions[currentSubject as keyof typeof examQuestions];
+    const questionIndex = currentQuestionIndex[currentSubject];
+    return subjectQuestions[questionIndex];
+  };
+
+  const getQuestionKey = (subject: string, index: number) => {
+    return `${subject}-${index}`;
+  };
 
   useEffect(() => {
     if (currentStep === 2) { // During examination
@@ -149,42 +176,78 @@ const EntranceExam = () => {
   };
 
   const handleAnswerChange = (value: string) => {
+    const questionKey = getQuestionKey(currentSubject, currentQuestionIndex[currentSubject]);
     setAnswers(prev => ({
       ...prev,
-      [currentQuestion]: value
+      [questionKey]: value
     }));
   };
 
   const handleFlagQuestion = () => {
+    const questionKey = getQuestionKey(currentSubject, currentQuestionIndex[currentSubject]);
     setFlaggedQuestions(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(currentQuestion)) {
-        newSet.delete(currentQuestion);
+      if (newSet.has(questionKey)) {
+        newSet.delete(questionKey);
       } else {
-        newSet.add(currentQuestion);
+        newSet.add(questionKey);
       }
       return newSet;
     });
   };
 
+  const handleSubjectNavigation = (direction: 'prev' | 'next') => {
+    const subjectQuestions = examQuestions[currentSubject as keyof typeof examQuestions];
+    const currentIndex = currentQuestionIndex[currentSubject];
+    
+    if (direction === 'prev' && currentIndex > 0) {
+      setCurrentQuestionIndex(prev => ({
+        ...prev,
+        [currentSubject]: currentIndex - 1
+      }));
+    } else if (direction === 'next' && currentIndex < subjectQuestions.length - 1) {
+      setCurrentQuestionIndex(prev => ({
+        ...prev,
+        [currentSubject]: currentIndex + 1
+      }));
+    }
+  };
+
   const handleSubmitExam = () => {
-    const score = examQuestions.reduce((total, question, index) => {
-      const userAnswer = parseInt(answers[index]);
+    const allQuestions = getAllQuestions();
+    const score = allQuestions.reduce((total, question, index) => {
+      const questionKey = getQuestionKey(question.id.split('-')[0], parseInt(question.id.split('-')[1]) - 1);
+      const userAnswer = parseInt(answers[questionKey]);
       return total + (userAnswer === question.correct ? 1 : 0);
     }, 0);
 
-    const percentage = Math.round((score / examQuestions.length) * 100);
+    const percentage = Math.round((score / allQuestions.length) * 100);
     
     setCurrentStep(3);
     
     toast({
       title: "Exam Completed",
-      description: `You scored ${score}/${examQuestions.length} (${percentage}%)`,
+      description: `You scored ${score}/${allQuestions.length} (${percentage}%)`,
     });
   };
 
-  const progress = ((currentQuestion + 1) / examQuestions.length) * 100;
-  const currentQ = examQuestions[currentQuestion];
+  const getTotalProgress = () => {
+    const totalQuestions = getAllQuestions().length;
+    const answeredQuestions = Object.keys(answers).length;
+    return (answeredQuestions / totalQuestions) * 100;
+  };
+
+  const getSubjectProgress = (subjectId: string) => {
+    const subjectQuestions = examQuestions[subjectId as keyof typeof examQuestions];
+    const answeredInSubject = subjectQuestions.filter((_, index) => {
+      const questionKey = getQuestionKey(subjectId, index);
+      return answers[questionKey] !== undefined;
+    }).length;
+    return (answeredInSubject / subjectQuestions.length) * 100;
+  };
+
+  const currentQ = getCurrentQuestion();
+  const currentSubjectQuestions = examQuestions[currentSubject as keyof typeof examQuestions];
 
   // Registration Step
   if (currentStep === 0) {
@@ -334,7 +397,7 @@ const EntranceExam = () => {
                     </li>
                     <li className="flex items-center">
                       <FileText className="h-4 w-4 mr-2 text-green-600" />
-                      Total Questions: {examQuestions.length}
+                      Total Questions: {getAllQuestions().length}
                     </li>
                     <li className="flex items-center">
                       <BookOpen className="h-4 w-4 mr-2 text-purple-600" />
@@ -348,6 +411,7 @@ const EntranceExam = () => {
                   <ul className="space-y-2 text-gray-700 text-sm">
                     <li>• You must complete the exam within the time limit</li>
                     <li>• Each question has only one correct answer</li>
+                    <li>• You can switch between subjects anytime</li>
                     <li>• You can review and change your answers</li>
                     <li>• Use the flag feature to mark questions for review</li>
                     <li>• The exam will auto-submit when time expires</li>
@@ -398,9 +462,11 @@ const EntranceExam = () => {
               <div className="flex items-center space-x-4">
                 <h1 className="text-xl font-semibold">Entrance Examination</h1>
                 <Badge variant="outline" className="text-sm">
-                  {currentQ.subject}
+                  {subjects.find(s => s.id === currentSubject)?.name}
                 </Badge>
-                <span className="text-lg font-bold">Question {currentQuestion + 1}/{examQuestions.length}</span>
+                <span className="text-lg font-bold">
+                  Question {currentQuestionIndex[currentSubject] + 1}/{currentSubjectQuestions.length}
+                </span>
               </div>
               
               <div className="flex items-center space-x-4">
@@ -413,106 +479,127 @@ const EntranceExam = () => {
                 </Button>
               </div>
             </div>
-            <Progress value={progress} className="mt-3" />
+            <Progress value={getTotalProgress()} className="mt-3" />
           </div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 py-6">
-          {/* Question Area */}
-          <Card className="mb-6">
-            <CardContent className="p-8">
-              <div className="space-y-6">
-                <div className="text-lg leading-relaxed bg-gray-50 p-6 rounded-lg border">
-                  {currentQ.question}
-                </div>
-                
-                <RadioGroup
-                  value={answers[currentQuestion] || ''}
-                  onValueChange={handleAnswerChange}
-                  className="space-y-4"
-                >
-                  {currentQ.options.map((option, index) => (
-                    <div key={index} className="flex items-center space-x-4 p-4 rounded-lg border-2 hover:bg-blue-50 hover:border-blue-200 transition-all">
-                      <RadioGroupItem value={index.toString()} id={`option-${index}`} className="h-5 w-5" />
-                      <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer text-lg">
-                        <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-800 font-bold rounded-full mr-4">
-                          {String.fromCharCode(65 + index)}
-                        </span>
-                        {option}
-                      </Label>
+          {/* Subject Tabs */}
+          <Tabs value={currentSubject} onValueChange={setCurrentSubject} className="mb-6">
+            <TabsList className="grid w-full grid-cols-4">
+              {subjects.map((subject) => (
+                <TabsTrigger key={subject.id} value={subject.id} className="relative">
+                  <div className="flex items-center space-x-2">
+                    <span>{subject.name}</span>
+                    <Badge variant="outline" className="text-xs">
+                      {Math.round(getSubjectProgress(subject.id))}%
+                    </Badge>
+                  </div>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+
+            {subjects.map((subject) => (
+              <TabsContent key={subject.id} value={subject.id} className="mt-0">
+                {/* Question Area */}
+                <Card className="mb-6">
+                  <CardContent className="p-8">
+                    <div className="space-y-6">
+                      <div className="text-lg leading-relaxed bg-gray-50 p-6 rounded-lg border">
+                        {currentQ?.question}
+                      </div>
+                      
+                      <RadioGroup
+                        value={answers[getQuestionKey(currentSubject, currentQuestionIndex[currentSubject])] || ''}
+                        onValueChange={handleAnswerChange}
+                        className="space-y-4"
+                      >
+                        {currentQ?.options.map((option, index) => (
+                          <div key={index} className="flex items-center space-x-4 p-4 rounded-lg border-2 hover:bg-blue-50 hover:border-blue-200 transition-all">
+                            <RadioGroupItem value={index.toString()} id={`option-${index}`} className="h-5 w-5" />
+                            <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer text-lg">
+                              <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-800 font-bold rounded-full mr-4">
+                                {String.fromCharCode(65 + index)}
+                              </span>
+                              {option}
+                            </Label>
+                          </div>
+                        ))}
+                      </RadioGroup>
                     </div>
-                  ))}
-                </RadioGroup>
-              </div>
-            </CardContent>
-          </Card>
+                  </CardContent>
+                </Card>
 
-          {/* Navigation */}
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="outline"
-                onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
-                disabled={currentQuestion === 0}
-                className="bg-orange-500 text-white hover:bg-orange-600"
-              >
-                <ChevronLeft className="h-4 w-4 mr-2" />
-                Previous
-              </Button>
-              
-              <Button
-                onClick={handleFlagQuestion}
-                variant={flaggedQuestions.has(currentQuestion) ? "default" : "outline"}
-                className={flaggedQuestions.has(currentQuestion) ? "bg-yellow-500 hover:bg-yellow-600" : ""}
-              >
-                <Flag className="h-4 w-4 mr-2" />
-                {flaggedQuestions.has(currentQuestion) ? 'Unflag' : 'Flag'}
-              </Button>
-              
-              <Button
-                onClick={() => setCurrentQuestion(Math.min(examQuestions.length - 1, currentQuestion + 1))}
-                disabled={currentQuestion === examQuestions.length - 1}
-                className="bg-blue-500 hover:bg-blue-600"
-              >
-                Next
-                <ChevronRight className="h-4 w-4 ml-2" />
-              </Button>
-            </div>
-
-            <div className="text-lg font-semibold text-gray-700">
-              Attempted: {Object.keys(answers).length}/{examQuestions.length}
-            </div>
-          </div>
-
-          {/* Question Navigator */}
-          <Card>
-            <CardContent className="p-6">
-              <div className="grid grid-cols-8 gap-3">
-                {examQuestions.map((_, index) => {
-                  const isAnswered = answers[index] !== undefined;
-                  const isFlagged = flaggedQuestions.has(index);
-                  const isCurrent = index === currentQuestion;
-                  
-                  return (
+                {/* Navigation */}
+                <div className="flex justify-between items-center mb-6">
+                  <div className="flex items-center space-x-4">
                     <Button
-                      key={index}
-                      variant={isCurrent ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setCurrentQuestion(index)}
-                      className={`
-                        h-12 w-12 text-lg font-bold
-                        ${isAnswered ? 'bg-green-500 text-white hover:bg-green-600' : ''}
-                        ${isFlagged ? 'bg-orange-500 text-white hover:bg-orange-600' : ''}
-                        ${isCurrent ? 'ring-2 ring-blue-500' : ''}
-                      `}
+                      variant="outline"
+                      onClick={() => handleSubjectNavigation('prev')}
+                      disabled={currentQuestionIndex[currentSubject] === 0}
+                      className="bg-orange-500 text-white hover:bg-orange-600"
                     >
-                      {index + 1}
+                      <ChevronLeft className="h-4 w-4 mr-2" />
+                      Previous
                     </Button>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
+                    
+                    <Button
+                      onClick={handleFlagQuestion}
+                      variant={flaggedQuestions.has(getQuestionKey(currentSubject, currentQuestionIndex[currentSubject])) ? "default" : "outline"}
+                      className={flaggedQuestions.has(getQuestionKey(currentSubject, currentQuestionIndex[currentSubject])) ? "bg-yellow-500 hover:bg-yellow-600" : ""}
+                    >
+                      <Flag className="h-4 w-4 mr-2" />
+                      {flaggedQuestions.has(getQuestionKey(currentSubject, currentQuestionIndex[currentSubject])) ? 'Unflag' : 'Flag'}
+                    </Button>
+                    
+                    <Button
+                      onClick={() => handleSubjectNavigation('next')}
+                      disabled={currentQuestionIndex[currentSubject] === currentSubjectQuestions.length - 1}
+                      className="bg-blue-500 hover:bg-blue-600"
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  </div>
+
+                  <div className="text-lg font-semibold text-gray-700">
+                    Total Attempted: {Object.keys(answers).length}/{getAllQuestions().length}
+                  </div>
+                </div>
+
+                {/* Question Navigator for Current Subject */}
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="grid grid-cols-8 gap-3">
+                      {currentSubjectQuestions.map((_, index) => {
+                        const questionKey = getQuestionKey(currentSubject, index);
+                        const isAnswered = answers[questionKey] !== undefined;
+                        const isFlagged = flaggedQuestions.has(questionKey);
+                        const isCurrent = index === currentQuestionIndex[currentSubject];
+                        
+                        return (
+                          <Button
+                            key={index}
+                            variant={isCurrent ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setCurrentQuestionIndex(prev => ({ ...prev, [currentSubject]: index }))}
+                            className={`
+                              h-12 w-12 text-lg font-bold
+                              ${isAnswered ? 'bg-green-500 text-white hover:bg-green-600' : ''}
+                              ${isFlagged ? 'bg-orange-500 text-white hover:bg-orange-600' : ''}
+                              ${isCurrent ? 'ring-2 ring-blue-500' : ''}
+                            `}
+                          >
+                            {index + 1}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            ))}
+          </Tabs>
         </div>
       </div>
     );
