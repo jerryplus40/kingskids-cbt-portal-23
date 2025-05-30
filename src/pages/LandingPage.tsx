@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Users, Shield, GraduationCap, Award, Clock, CheckCircle } from 'lucide-react';
@@ -9,28 +8,28 @@ const LandingPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Hero Section with Background Image */}
       <section className="relative overflow-hidden">
-        {/* Background Image with Fade */}
+        {/* Background Image with Gradient Overlay */}
         <div 
-          className="absolute inset-0 bg-cover bg-center opacity-20"
+          className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage: `url('/lovable-uploads/e4a8a139-6d15-4362-8f9c-e7a1dd26024f.png')`
           }}
         ></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/30 to-purple-600/30"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-purple-700 opacity-85"></div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               <div className="space-y-4">
-                <div className="inline-flex items-center bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium">
+                <div className="inline-flex items-center bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium border border-white/30">
                   <Award className="h-4 w-4 mr-2" />
                   Excellence in Digital Learning
                 </div>
-                <h1 className="text-5xl font-bold text-gray-900 leading-tight">
+                <h1 className="text-5xl font-bold text-white leading-tight">
                   King's Kids Christian
-                  <span className="text-blue-600 block">International High School</span>
+                  <span className="text-blue-200 block">International High School</span>
                 </h1>
-                <p className="text-xl text-gray-600 leading-relaxed">
+                <p className="text-xl text-white/90 leading-relaxed">
                   Empowering students through innovative Computer Based Testing technology. 
                   Experience seamless, secure, and efficient digital assessments designed for the future of education.
                 </p>
@@ -38,25 +37,25 @@ const LandingPage = () => {
               
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/login">
-                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                  <Button size="lg" className="bg-white text-purple-700 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
                     Access Portal
                   </Button>
                 </Link>
-                <Button variant="outline" size="lg" className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-3 rounded-lg font-semibold">
+                <Button variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white/10 backdrop-blur-sm px-8 py-3 rounded-lg font-semibold">
                   Learn More
                 </Button>
               </div>
             </div>
             
             <div className="relative">
-              <div className="absolute -bottom-6 -right-6 bg-white rounded-2xl p-4 shadow-xl border border-gray-100">
+              <div className="absolute -bottom-6 -right-6 bg-white/10 backdrop-blur-md rounded-2xl p-4 shadow-xl border border-white/20">
                 <div className="flex items-center space-x-3">
                   <div className="bg-green-100 p-2 rounded-full">
                     <CheckCircle className="h-6 w-6 text-green-600" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-gray-900">Secure Testing</p>
-                    <p className="text-xs text-gray-500">Advanced proctoring</p>
+                    <p className="text-sm font-semibold text-white">Secure Testing</p>
+                    <p className="text-xs text-white/70">Advanced proctoring</p>
                   </div>
                 </div>
               </div>
@@ -138,7 +137,7 @@ const LandingPage = () => {
       </section>
 
       {/* Integrating Technology Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
+      <section className="py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-purple-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center text-white">
             <h2 className="text-4xl md:text-6xl font-bold mb-4">
@@ -161,7 +160,7 @@ const LandingPage = () => {
             Join thousands of students and educators who have already embraced the future of digital assessment
           </p>
           <Link to="/login">
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300">
+            <Button size="lg" className="bg-white text-purple-700 hover:bg-gray-100 px-12 py-4 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300">
               Get Started Today
             </Button>
           </Link>
