@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Layout } from '../components/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Users, 
   School, 
@@ -22,18 +22,28 @@ import {
   BarChart3,
   FileText,
   Database,
-  Shield
+  Shield,
+  Upload,
+  GraduationCap
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 const AdminDashboard = () => {
   const [showCreateUser, setShowCreateUser] = useState(false);
+  const [showCreateEntrance, setShowCreateEntrance] = useState(false);
   const [newUser, setNewUser] = useState({
     name: '',
     email: '',
     role: '',
     class: '',
     subject: ''
+  });
+  const [newEntrance, setNewEntrance] = useState({
+    title: '',
+    duration: '',
+    class: '',
+    instructions: '',
+    questions: ''
   });
 
   // Mock data
@@ -43,8 +53,42 @@ const AdminDashboard = () => {
     totalParents: 380,
     totalExams: 125,
     activeExams: 8,
-    completedExams: 117
+    completedExams: 117,
+    entranceExams: 12
   };
+
+  const entranceExams = [
+    { 
+      id: '1', 
+      title: 'SS1 Entrance Examination 2024', 
+      class: 'SS1', 
+      duration: 120, 
+      questions: 50,
+      status: 'active',
+      created: '2024-01-15',
+      applicants: 45
+    },
+    { 
+      id: '2', 
+      title: 'SS2 Mid-Year Entrance', 
+      class: 'SS2', 
+      duration: 90, 
+      questions: 40,
+      status: 'draft',
+      created: '2024-01-10',
+      applicants: 0
+    },
+    { 
+      id: '3', 
+      title: 'SS3 Advanced Placement', 
+      class: 'SS3', 
+      duration: 150, 
+      questions: 60,
+      status: 'completed',
+      created: '2024-01-05',
+      applicants: 23
+    }
+  ];
 
   const users = [
     { id: '1', name: 'John Doe', email: 'john@student.com', role: 'student', class: 'SS1A', status: 'active' },
@@ -76,6 +120,25 @@ const AdminDashboard = () => {
     { timestamp: '2024-06-01 14:20', user: 'admin@system.com', action: 'User Management', status: 'Success' },
     { timestamp: '2024-06-01 14:15', user: 'jane@student.com', action: 'Login Attempt', status: 'Failed' },
   ];
+
+  const handleCreateEntrance = () => {
+    if (!newEntrance.title || !newEntrance.duration || !newEntrance.class) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Entrance Exam Created",
+      description: `${newEntrance.title} has been created successfully`,
+    });
+
+    setNewEntrance({ title: '', duration: '', class: '', instructions: '', questions: '' });
+    setShowCreateEntrance(false);
+  };
 
   const handleCreateUser = () => {
     if (!newUser.name || !newUser.email || !newUser.role) {
@@ -112,11 +175,32 @@ const AdminDashboard = () => {
     return <Badge className={colors[role as keyof typeof colors]}>{role.toUpperCase()}</Badge>;
   };
 
+  const getEntranceStatusBadge = (status: string) => {
+    const colors = {
+      active: 'bg-green-100 text-green-800',
+      draft: 'bg-yellow-100 text-yellow-800',
+      completed: 'bg-blue-100 text-blue-800'
+    };
+    return <Badge className={colors[status as keyof typeof colors]}>{status.toUpperCase()}</Badge>;
+  };
+
   return (
     <Layout title="Admin Dashboard">
       <div className="px-4 sm:px-0">
         {/* System Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4 mb-8">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center">
+                <GraduationCap className="h-6 w-6 text-purple-600" />
+                <div className="ml-3">
+                  <p className="text-lg font-bold">{systemStats.entranceExams}</p>
+                  <p className="text-xs text-gray-600">Entrance Exams</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center">
@@ -190,8 +274,9 @@ const AdminDashboard = () => {
           </Card>
         </div>
 
-        <Tabs defaultValue="users" className="space-y-6">
+        <Tabs defaultValue="entrance" className="space-y-6">
           <TabsList>
+            <TabsTrigger value="entrance">Entrance Examination</TabsTrigger>
             <TabsTrigger value="users">User Management</TabsTrigger>
             <TabsTrigger value="classes">Classes</TabsTrigger>
             <TabsTrigger value="subjects">Subjects</TabsTrigger>
@@ -199,6 +284,130 @@ const AdminDashboard = () => {
             <TabsTrigger value="reports">Reports</TabsTrigger>
             <TabsTrigger value="logs">System Logs</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="entrance">
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-semibold">Entrance Examination Management</h2>
+                <Button onClick={() => setShowCreateEntrance(true)} className="bg-purple-600 hover:bg-purple-700">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Entrance Exam
+                </Button>
+              </div>
+
+              {showCreateEntrance && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Create New Entrance Examination</CardTitle>
+                    <CardDescription>Set up a new entrance examination for prospective students</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="md:col-span-2">
+                        <Label htmlFor="examTitle">Examination Title *</Label>
+                        <Input
+                          id="examTitle"
+                          value={newEntrance.title}
+                          onChange={(e) => setNewEntrance({...newEntrance, title: e.target.value})}
+                          placeholder="e.g., SS1 Entrance Examination 2024"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="examClass">Target Class *</Label>
+                        <Select value={newEntrance.class} onValueChange={(value) => setNewEntrance({...newEntrance, class: value})}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select target class" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="SS1">SS1</SelectItem>
+                            <SelectItem value="SS2">SS2</SelectItem>
+                            <SelectItem value="SS3">SS3</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="examDuration">Duration (minutes) *</Label>
+                        <Input
+                          id="examDuration"
+                          type="number"
+                          value={newEntrance.duration}
+                          onChange={(e) => setNewEntrance({...newEntrance, duration: e.target.value})}
+                          placeholder="e.g., 120"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <Label htmlFor="examInstructions">Instructions</Label>
+                        <Textarea
+                          id="examInstructions"
+                          value={newEntrance.instructions}
+                          onChange={(e) => setNewEntrance({...newEntrance, instructions: e.target.value})}
+                          placeholder="Enter examination instructions for students..."
+                          rows={3}
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <Label htmlFor="examQuestions">Upload Questions</Label>
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                          <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                          <p className="text-sm text-gray-600">Click to upload question file or drag and drop</p>
+                          <p className="text-xs text-gray-400">Supported formats: PDF, DOC, DOCX</p>
+                          <Input type="file" className="hidden" accept=".pdf,.doc,.docx" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 mt-6">
+                      <Button onClick={handleCreateEntrance} className="bg-purple-600 hover:bg-purple-700">
+                        Create Entrance Exam
+                      </Button>
+                      <Button variant="outline" onClick={() => setShowCreateEntrance(false)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>All Entrance Examinations</CardTitle>
+                  <CardDescription>Manage entrance examinations for all classes</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {entranceExams.map((exam) => (
+                      <div key={exam.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center space-x-4">
+                          <GraduationCap className="h-8 w-8 text-purple-600" />
+                          <div>
+                            <div className="flex items-center space-x-2 mb-1">
+                              <h3 className="font-semibold">{exam.title}</h3>
+                              {getEntranceStatusBadge(exam.status)}
+                            </div>
+                            <div className="text-sm text-gray-600 space-y-1">
+                              <p>Target Class: <span className="font-medium">{exam.class}</span></p>
+                              <p>Duration: <span className="font-medium">{exam.duration} minutes</span> • Questions: <span className="font-medium">{exam.questions}</span></p>
+                              <p>Created: <span className="font-medium">{exam.created}</span> • Applicants: <span className="font-medium">{exam.applicants}</span></p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex space-x-2">
+                          <Button variant="outline" size="sm">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
 
           <TabsContent value="users">
             <div className="space-y-6">
