@@ -1,7 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookOpen, Users, Shield, GraduationCap, Award, Clock, CheckCircle } from 'lucide-react';
+import { BookOpen, Users, Shield, GraduationCap, Award, Clock, CheckCircle, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const LandingPage = () => {
@@ -42,8 +42,9 @@ const LandingPage = () => {
                     Access Portal
                   </Button>
                 </Link>
-                <Button variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white/10 backdrop-blur-sm px-8 py-3 rounded-lg font-semibold">
-                  Learn More
+                <Button size="lg" className="bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 px-8 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                  <FileText className="h-5 w-5 mr-2" />
+                  Take Entrance Examination
                 </Button>
               </div>
             </div>
