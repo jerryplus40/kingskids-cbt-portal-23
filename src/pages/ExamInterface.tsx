@@ -13,7 +13,8 @@ import {
   ChevronRight, 
   Flag, 
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  Volume2
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
@@ -62,6 +63,47 @@ const ExamInterface = () => {
       }
     ]
   };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      // Prevent default behavior for our shortcuts
+      if (['a', 'b', 'c', 'd', 'ArrowLeft', 'ArrowRight'].includes(event.key.toLowerCase())) {
+        event.preventDefault();
+      }
+
+      switch (event.key.toLowerCase()) {
+        case 'a':
+          handleAnswerChange('0');
+          break;
+        case 'b':
+          handleAnswerChange('1');
+          break;
+        case 'c':
+          handleAnswerChange('2');
+          break;
+        case 'd':
+          handleAnswerChange('3');
+          break;
+        case 'arrowleft':
+          if (currentQuestion > 0) {
+            setCurrentQuestion(currentQuestion - 1);
+          }
+          break;
+        case 'arrowright':
+          if (currentQuestion < examData.questions.length - 1) {
+            setCurrentQuestion(currentQuestion + 1);
+          }
+          break;
+        case 'f':
+          handleFlagQuestion();
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [currentQuestion, examData.questions.length]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -126,9 +168,12 @@ const ExamInterface = () => {
       <div className="bg-white border-b shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <div>
+            <div className="flex items-center space-x-4">
               <h1 className="text-xl font-semibold">{examData.subject} Examination</h1>
-              <p className="text-gray-600">Question {currentQuestion + 1} of {examData.questions.length}</p>
+              <div className="flex items-center space-x-2">
+                <Volume2 className="h-5 w-5 text-gray-600" />
+                <span className="text-lg font-bold">Question {currentQuestion + 1}/{examData.questions.length}</span>
+              </div>
             </div>
             
             <div className="flex items-center space-x-4">
@@ -141,150 +186,106 @@ const ExamInterface = () => {
               </Button>
             </div>
           </div>
-          
-          <div className="mt-4">
-            <Progress value={progress} className="h-2" />
-          </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Question Panel */}
-          <div className="lg:col-span-3">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-lg">
-                    Question {currentQuestion + 1}
-                    {flaggedQuestions.has(currentQuestion) && (
-                      <Badge variant="outline" className="ml-2">
-                        <Flag className="h-3 w-3 mr-1" />
-                        Flagged
-                      </Badge>
-                    )}
-                  </CardTitle>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleFlagQuestion}
-                    className={flaggedQuestions.has(currentQuestion) ? 'text-orange-600' : ''}
-                  >
-                    <Flag className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <p className="text-lg leading-relaxed">{currentQ.question}</p>
-                  
-                  <RadioGroup
-                    value={answers[currentQuestion] || ''}
-                    onValueChange={handleAnswerChange}
-                  >
-                    {currentQ.options.map((option, index) => (
-                      <div key={index} className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-gray-50">
-                        <RadioGroupItem value={index.toString()} id={`option-${index}`} />
-                        <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer">
-                          <span className="font-medium mr-2">{String.fromCharCode(65 + index)}.</span>
-                          {option}
-                        </Label>
-                      </div>
-                    ))}
-                  </RadioGroup>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Navigation */}
-            <div className="flex justify-between mt-6">
-              <Button
-                variant="outline"
-                onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
-                disabled={currentQuestion === 0}
-              >
-                <ChevronLeft className="h-4 w-4 mr-2" />
-                Previous
-              </Button>
+        {/* Main Question Area */}
+        <Card className="mb-6">
+          <CardContent className="p-8">
+            <div className="space-y-6">
+              <div className="text-lg leading-relaxed bg-gray-50 p-6 rounded-lg border">
+                {currentQ.question}
+              </div>
               
-              <Button
-                onClick={() => setCurrentQuestion(Math.min(examData.questions.length - 1, currentQuestion + 1))}
-                disabled={currentQuestion === examData.questions.length - 1}
+              <RadioGroup
+                value={answers[currentQuestion] || ''}
+                onValueChange={handleAnswerChange}
+                className="space-y-4"
               >
-                Next
-                <ChevronRight className="h-4 w-4 ml-2" />
-              </Button>
+                {currentQ.options.map((option, index) => (
+                  <div key={index} className="flex items-center space-x-4 p-4 rounded-lg border-2 hover:bg-blue-50 hover:border-blue-200 transition-all">
+                    <RadioGroupItem value={index.toString()} id={`option-${index}`} className="h-5 w-5" />
+                    <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer text-lg">
+                      <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-800 font-bold rounded-full mr-4">
+                        {String.fromCharCode(65 + index)}
+                      </span>
+                      {option}
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Navigation and Status Bar */}
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="outline"
+              onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
+              disabled={currentQuestion === 0}
+              className="bg-orange-500 text-white hover:bg-orange-600 px-6"
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
+            
+            <Button
+              onClick={() => setCurrentQuestion(Math.min(examData.questions.length - 1, currentQuestion + 1))}
+              disabled={currentQuestion === examData.questions.length - 1}
+              className="bg-blue-500 hover:bg-blue-600 px-6"
+            >
+              Next
+              <ChevronRight className="h-4 w-4 ml-2" />
+            </Button>
           </div>
 
-          {/* Question Navigator */}
-          <div className="lg:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Question Navigator</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-5 gap-2">
-                  {examData.questions.map((_, index) => {
-                    const isAnswered = answers[index] !== undefined;
-                    const isFlagged = flaggedQuestions.has(index);
-                    const isCurrent = index === currentQuestion;
-                    
-                    return (
-                      <Button
-                        key={index}
-                        variant={isCurrent ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setCurrentQuestion(index)}
-                        className={`
-                          relative h-10 w-10 p-0
-                          ${isAnswered ? 'bg-green-100 border-green-300 text-green-800' : ''}
-                          ${isFlagged ? 'bg-orange-100 border-orange-300 text-orange-800' : ''}
-                          ${isCurrent ? 'ring-2 ring-blue-500' : ''}
-                        `}
-                      >
-                        {index + 1}
-                        {isAnswered && (
-                          <CheckCircle2 className="absolute -top-1 -right-1 h-3 w-3 text-green-600" />
-                        )}
-                        {isFlagged && (
-                          <Flag className="absolute -top-1 -right-1 h-3 w-3 text-orange-600" />
-                        )}
-                      </Button>
-                    );
-                  })}
-                </div>
-                
-                <div className="mt-6 space-y-2 text-sm">
-                  <div className="flex items-center">
-                    <div className="w-4 h-4 bg-green-100 border border-green-300 rounded mr-2"></div>
-                    <span>Answered</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-4 h-4 bg-orange-100 border border-orange-300 rounded mr-2"></div>
-                    <span>Flagged</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-4 h-4 border border-gray-300 rounded mr-2"></div>
-                    <span>Not Visited</span>
-                  </div>
-                </div>
-
-                <div className="mt-6 p-3 bg-blue-50 rounded-lg">
-                  <div className="flex items-center text-blue-800 mb-2">
-                    <AlertCircle className="h-4 w-4 mr-2" />
-                    <span className="font-medium">Exam Status</span>
-                  </div>
-                  <div className="text-sm space-y-1">
-                    <p>Answered: {Object.keys(answers).length}/{examData.questions.length}</p>
-                    <p>Flagged: {flaggedQuestions.size}</p>
-                    <p>Time Remaining: {formatTime(timeLeft)}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="text-lg font-semibold text-gray-700">
+            Attempted: {Object.keys(answers).length}/{examData.questions.length}
           </div>
         </div>
+
+        {/* Question Navigator Grid */}
+        <Card>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-10 gap-3">
+              {examData.questions.map((_, index) => {
+                const isAnswered = answers[index] !== undefined;
+                const isFlagged = flaggedQuestions.has(index);
+                const isCurrent = index === currentQuestion;
+                
+                return (
+                  <Button
+                    key={index}
+                    variant={isCurrent ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setCurrentQuestion(index)}
+                    className={`
+                      h-12 w-12 text-lg font-bold
+                      ${isAnswered ? 'bg-green-500 text-white border-green-500 hover:bg-green-600' : ''}
+                      ${isFlagged ? 'bg-orange-500 text-white border-orange-500 hover:bg-orange-600' : ''}
+                      ${isCurrent ? 'ring-2 ring-blue-500 bg-blue-600 text-white' : ''}
+                      ${!isAnswered && !isFlagged && !isCurrent ? 'bg-gray-100 hover:bg-gray-200' : ''}
+                    `}
+                  >
+                    {index + 1}
+                  </Button>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Keyboard Shortcuts Help */}
+        <Card className="mt-6">
+          <CardContent className="p-4">
+            <div className="text-sm text-gray-600">
+              <strong>Keyboard Shortcuts:</strong> Press A, B, C, D to select answers • ← → arrow keys to navigate • F to flag question
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
