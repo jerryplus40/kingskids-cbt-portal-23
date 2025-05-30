@@ -13,6 +13,7 @@ import TeacherDashboard from "./pages/TeacherDashboard";
 import ParentDashboard from "./pages/ParentDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import ExamInterface from "./pages/ExamInterface";
+import EntranceExam from "./pages/EntranceExam";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();

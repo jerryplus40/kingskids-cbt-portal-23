@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Users, Shield, GraduationCap, Award, Clock, CheckCircle, FileText } from 'lucide-react';
@@ -42,10 +41,12 @@ const LandingPage = () => {
                     Access Portal
                   </Button>
                 </Link>
-                <Button size="lg" className="bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 px-8 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                  <FileText className="h-5 w-5 mr-2" />
-                  Take Entrance Examination
-                </Button>
+                <Link to="/entrance-exam">
+                  <Button size="lg" className="bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 px-8 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                    <FileText className="h-5 w-5 mr-2" />
+                    Take Entrance Examination
+                  </Button>
+                </Link>
               </div>
             </div>
             
