@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Users, Shield, GraduationCap, Award, Clock, CheckCircle } from 'lucide-react';
@@ -5,7 +6,7 @@ import { Link } from 'react-router-dom';
 
 const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100">
       {/* Hero Section with Background Image */}
       <section className="relative overflow-hidden">
         {/* Background Image with Gradient Overlay */}
@@ -15,7 +16,7 @@ const LandingPage = () => {
             backgroundImage: `url('/lovable-uploads/e4a8a139-6d15-4362-8f9c-e7a1dd26024f.png')`
           }}
         ></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-purple-700 opacity-85"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 opacity-85"></div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -37,7 +38,7 @@ const LandingPage = () => {
               
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/login">
-                  <Button size="lg" className="bg-white text-purple-700 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                  <Button size="lg" className="bg-white text-blue-800 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
                     Access Portal
                   </Button>
                 </Link>
@@ -107,8 +108,8 @@ const LandingPage = () => {
 
             <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg hover:-translate-y-2">
               <CardHeader className="text-center pb-4">
-                <div className="mx-auto bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
-                  <Users className="h-8 w-8 text-purple-600 group-hover:text-white" />
+                <div className="mx-auto bg-blue-800 w-16 h-16 rounded-full flex items-center justify-center group-hover:bg-blue-900 group-hover:text-white transition-colors duration-300">
+                  <Users className="h-8 w-8 text-white" />
                 </div>
                 <CardTitle className="text-xl font-bold text-gray-900">Parent Portal</CardTitle>
               </CardHeader>
@@ -137,7 +138,7 @@ const LandingPage = () => {
       </section>
 
       {/* Integrating Technology Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-purple-700">
+      <section className="py-20 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center text-white">
             <h2 className="text-4xl md:text-6xl font-bold mb-4">
@@ -160,7 +161,7 @@ const LandingPage = () => {
             Join thousands of students and educators who have already embraced the future of digital assessment
           </p>
           <Link to="/login">
-            <Button size="lg" className="bg-white text-purple-700 hover:bg-gray-100 px-12 py-4 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300">
+            <Button size="lg" className="bg-blue-700 text-white hover:bg-blue-800 px-12 py-4 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300">
               Get Started Today
             </Button>
           </Link>
