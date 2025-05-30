@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Users, Shield, GraduationCap, Award, Clock, CheckCircle } from 'lucide-react';
@@ -16,13 +17,6 @@ const LandingPage = () => {
           }}
         ></div>
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/30 to-purple-600/30"></div>
-        
-        {/* Overlay Text on Right Side */}
-        <div className="absolute inset-0 flex items-center justify-end pr-8 md:pr-16">
-          <h2 className="text-4xl md:text-6xl font-bold text-white text-center px-4 drop-shadow-2xl">
-            Integrating technology into education
-          </h2>
-        </div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -143,22 +137,16 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
+      {/* Integrating Technology Section */}
       <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-8 text-center text-white">
-            <div className="space-y-2">
-              <div className="text-4xl font-bold">1000+</div>
-              <div className="text-xl opacity-90">Students Enrolled</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-4xl font-bold">50+</div>
-              <div className="text-xl opacity-90">Qualified Teachers</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-4xl font-bold">99.9%</div>
-              <div className="text-xl opacity-90">System Uptime</div>
-            </div>
+          <div className="text-center text-white">
+            <h2 className="text-4xl md:text-6xl font-bold mb-4">
+              Integrating technology into education
+            </h2>
+            <p className="text-xl opacity-90 max-w-3xl mx-auto">
+              Transforming the way students learn and teachers teach through innovative digital solutions
+            </p>
           </div>
         </div>
       </section>
