@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Users, Shield, GraduationCap, Award, Clock, CheckCircle } from 'lucide-react';
@@ -18,8 +17,8 @@ const LandingPage = () => {
         ></div>
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/30 to-purple-600/30"></div>
         
-        {/* Overlay Text */}
-        <div className="absolute inset-0 flex items-center justify-center">
+        {/* Overlay Text on Right Side */}
+        <div className="absolute inset-0 flex items-center justify-end pr-8 md:pr-16">
           <h2 className="text-4xl md:text-6xl font-bold text-white text-center px-4 drop-shadow-2xl">
             Integrating technology into education
           </h2>
@@ -56,12 +55,6 @@ const LandingPage = () => {
             </div>
             
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-3xl transform rotate-3 scale-105 opacity-20"></div>
-              <img 
-                src="/lovable-uploads/e4a8a139-6d15-4362-8f9c-e7a1dd26024f.png" 
-                alt="Students using laptops for computer-based testing"
-                className="relative rounded-3xl shadow-2xl w-full h-auto transform hover:scale-105 transition-transform duration-500"
-              />
               <div className="absolute -bottom-6 -right-6 bg-white rounded-2xl p-4 shadow-xl border border-gray-100">
                 <div className="flex items-center space-x-3">
                   <div className="bg-green-100 p-2 rounded-full">
