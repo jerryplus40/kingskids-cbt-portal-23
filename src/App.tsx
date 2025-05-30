@@ -28,6 +28,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/entrance-exam" element={<EntranceExam />} />
             
             <Route path="/student" element={
               <ProtectedRoute allowedRoles={['student']}>
