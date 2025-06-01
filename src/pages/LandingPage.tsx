@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Users, Shield, GraduationCap, Award, Clock, CheckCircle, FileText, ArrowRight, Star, Zap } from 'lucide-react';
@@ -15,14 +14,14 @@ const LandingPage = () => {
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
         </div>
         
-        {/* Background Image with Modern Overlay */}
+        {/* Background Image with Reduced Overlay */}
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage: `url('/lovable-uploads/e4a8a139-6d15-4362-8f9c-e7a1dd26024f.png')`
           }}
         ></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 via-blue-800/85 to-purple-900/90 backdrop-blur-sm"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/60 via-blue-800/55 to-purple-900/60 backdrop-blur-sm"></div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -194,7 +193,7 @@ const LandingPage = () => {
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="space-y-8">
-            <div className="inline-flex items-center bg-white/10 backdrop-blur-md text-white px-6 py-3 rounded-full text-sm font-medium border border-white/20">
+            <div className="inline-flex items-center bg-white/10 backdrop-blur-md text-white px-6 py-3 rounded-full text-sm font-medium">
               <Zap className="h-5 w-5 mr-2" />
               Innovation at Work
             </div>
