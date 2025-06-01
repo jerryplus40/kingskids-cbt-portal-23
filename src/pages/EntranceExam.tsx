@@ -22,7 +22,11 @@ import {
   MapPin,
   FileText,
   AlertCircle,
-  BookOpen
+  BookOpen,
+  GraduationCap,
+  Sparkles,
+  Trophy,
+  Star
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
@@ -115,10 +119,10 @@ const EntranceExam = () => {
   };
 
   const subjects = [
-    { id: 'mathematics', name: 'Mathematics', color: 'bg-blue-500' },
-    { id: 'english', name: 'English', color: 'bg-green-500' },
-    { id: 'science', name: 'Science', color: 'bg-purple-500' },
-    { id: 'general-knowledge', name: 'General Knowledge', color: 'bg-orange-500' }
+    { id: 'mathematics', name: 'Mathematics', color: 'from-blue-500 to-blue-600', icon: '📊', textColor: 'text-blue-700' },
+    { id: 'english', name: 'English', color: 'from-emerald-500 to-emerald-600', icon: '📚', textColor: 'text-emerald-700' },
+    { id: 'science', name: 'Science', color: 'from-purple-500 to-purple-600', icon: '🧪', textColor: 'text-purple-700' },
+    { id: 'general-knowledge', name: 'General Knowledge', color: 'from-orange-500 to-orange-600', icon: '🌍', textColor: 'text-orange-700' }
   ];
 
   const getAllQuestions = () => {
@@ -254,63 +258,93 @@ const EntranceExam = () => {
   // Registration Step
   if (currentStep === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-12">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Entrance Examination Registration</h1>
-            <p className="text-xl text-gray-600">King's Kids Christian International High School</p>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 relative overflow-hidden">
+        {/* Decorative Elements */}
+        <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-emerald-200/30 to-blue-200/30 rounded-full translate-x-1/2 translate-y-1/2 animate-pulse" />
+        
+        <div className="relative z-10 max-w-5xl mx-auto px-4 py-12">
+          <div className="text-center mb-12 animate-fade-in">
+            <div className="flex items-center justify-center mb-6">
+              <div className="p-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full text-white shadow-lg">
+                <GraduationCap className="h-12 w-12" />
+              </div>
+            </div>
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent mb-4">
+              Entrance Examination Registration
+            </h1>
+            <p className="text-2xl text-gray-600 font-medium">King's Kids Christian International High School</p>
+            <div className="flex items-center justify-center mt-4 space-x-2">
+              <Sparkles className="h-5 w-5 text-yellow-500" />
+              <span className="text-gray-500">Your journey to excellence begins here</span>
+              <Sparkles className="h-5 w-5 text-yellow-500" />
+            </div>
           </div>
 
-          <Card className="shadow-xl">
-            <CardHeader>
-              <CardTitle className="flex items-center text-2xl">
-                <User className="h-6 w-6 mr-2 text-blue-600" />
+          <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
+            <CardHeader className="pb-8">
+              <CardTitle className="flex items-center text-3xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <User className="h-8 w-8 mr-3 text-blue-600" />
                 Student Information
               </CardTitle>
+              <p className="text-gray-600 mt-2">Please provide your details to proceed with the entrance examination</p>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-8">
               <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name *</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="firstName" className="text-base font-semibold text-gray-700">First Name *</Label>
                   <Input
                     id="firstName"
                     value={studentInfo.firstName}
                     onChange={(e) => setStudentInfo(prev => ({ ...prev, firstName: e.target.value }))}
                     placeholder="Enter your first name"
+                    className="h-12 border-2 border-gray-200 focus:border-blue-500 transition-all duration-200"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name *</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="lastName" className="text-base font-semibold text-gray-700">Last Name *</Label>
                   <Input
                     id="lastName"
                     value={studentInfo.lastName}
                     onChange={(e) => setStudentInfo(prev => ({ ...prev, lastName: e.target.value }))}
                     placeholder="Enter your last name"
+                    className="h-12 border-2 border-gray-200 focus:border-blue-500 transition-all duration-200"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address *</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="email" className="text-base font-semibold text-gray-700 flex items-center">
+                    <Mail className="h-4 w-4 mr-2" />
+                    Email Address *
+                  </Label>
                   <Input
                     id="email"
                     type="email"
                     value={studentInfo.email}
                     onChange={(e) => setStudentInfo(prev => ({ ...prev, email: e.target.value }))}
                     placeholder="Enter your email"
+                    className="h-12 border-2 border-gray-200 focus:border-blue-500 transition-all duration-200"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number *</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="phone" className="text-base font-semibold text-gray-700 flex items-center">
+                    <Phone className="h-4 w-4 mr-2" />
+                    Phone Number *
+                  </Label>
                   <Input
                     id="phone"
                     value={studentInfo.phone}
                     onChange={(e) => setStudentInfo(prev => ({ ...prev, phone: e.target.value }))}
                     placeholder="Enter your phone number"
+                    className="h-12 border-2 border-gray-200 focus:border-blue-500 transition-all duration-200"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="class">Class Applying For *</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="class" className="text-base font-semibold text-gray-700 flex items-center">
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Class Applying For *
+                  </Label>
                   <Select value={studentInfo.class} onValueChange={(value) => setStudentInfo(prev => ({ ...prev, class: value }))}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-12 border-2 border-gray-200 focus:border-blue-500 transition-all duration-200">
                       <SelectValue placeholder="Select class" />
                     </SelectTrigger>
                     <SelectContent>
@@ -323,61 +357,72 @@ const EntranceExam = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="dateOfBirth">Date of Birth</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="dateOfBirth" className="text-base font-semibold text-gray-700 flex items-center">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Date of Birth
+                  </Label>
                   <Input
                     id="dateOfBirth"
                     type="date"
                     value={studentInfo.dateOfBirth}
                     onChange={(e) => setStudentInfo(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                    className="h-12 border-2 border-gray-200 focus:border-blue-500 transition-all duration-200"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="previousSchool">Previous School</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="previousSchool" className="text-base font-semibold text-gray-700">Previous School</Label>
                   <Input
                     id="previousSchool"
                     value={studentInfo.previousSchool}
                     onChange={(e) => setStudentInfo(prev => ({ ...prev, previousSchool: e.target.value }))}
                     placeholder="Enter your previous school"
+                    className="h-12 border-2 border-gray-200 focus:border-blue-500 transition-all duration-200"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="guardianName">Guardian/Parent Name</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="guardianName" className="text-base font-semibold text-gray-700">Guardian/Parent Name</Label>
                   <Input
                     id="guardianName"
                     value={studentInfo.guardianName}
                     onChange={(e) => setStudentInfo(prev => ({ ...prev, guardianName: e.target.value }))}
                     placeholder="Enter guardian's name"
+                    className="h-12 border-2 border-gray-200 focus:border-blue-500 transition-all duration-200"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="guardianPhone">Guardian/Parent Phone</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="guardianPhone" className="text-base font-semibold text-gray-700">Guardian/Parent Phone</Label>
                   <Input
                     id="guardianPhone"
                     value={studentInfo.guardianPhone}
                     onChange={(e) => setStudentInfo(prev => ({ ...prev, guardianPhone: e.target.value }))}
                     placeholder="Enter guardian's phone"
+                    className="h-12 border-2 border-gray-200 focus:border-blue-500 transition-all duration-200"
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
+              <div className="space-y-3">
+                <Label htmlFor="address" className="text-base font-semibold text-gray-700 flex items-center">
+                  <MapPin className="h-4 w-4 mr-2" />
+                  Address
+                </Label>
                 <Input
                   id="address"
                   value={studentInfo.address}
                   onChange={(e) => setStudentInfo(prev => ({ ...prev, address: e.target.value }))}
                   placeholder="Enter your full address"
+                  className="h-12 border-2 border-gray-200 focus:border-blue-500 transition-all duration-200"
                 />
               </div>
               
-              <div className="flex justify-between pt-6">
-                <Button variant="outline" onClick={() => navigate('/')}>
-                  <ChevronLeft className="h-4 w-4 mr-2" />
+              <div className="flex justify-between pt-8">
+                <Button variant="outline" onClick={() => navigate('/')} className="h-12 px-8 text-base border-2">
+                  <ChevronLeft className="h-5 w-5 mr-2" />
                   Back to Home
                 </Button>
-                <Button onClick={handleRegistration} className="bg-blue-600 hover:bg-blue-700">
+                <Button onClick={handleRegistration} className="h-12 px-8 text-base bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg">
                   Continue to Instructions
-                  <ChevronRight className="h-4 w-4 ml-2" />
+                  <ChevronRight className="h-5 w-5 ml-2" />
                 </Button>
               </div>
             </CardContent>
@@ -390,75 +435,119 @@ const EntranceExam = () => {
   // Instructions Step
   if (currentStep === 1) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-12">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Examination Instructions</h1>
-            <p className="text-xl text-gray-600">Please read carefully before starting</p>
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50 relative overflow-hidden">
+        {/* Decorative Elements */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-emerald-200/30 to-blue-200/30 rounded-full translate-x-1/2 -translate-y-1/2 animate-pulse" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full -translate-x-1/2 translate-y-1/2 animate-pulse" />
+        
+        <div className="relative z-10 max-w-5xl mx-auto px-4 py-12">
+          <div className="text-center mb-12 animate-fade-in">
+            <div className="flex items-center justify-center mb-6">
+              <div className="p-4 bg-gradient-to-r from-emerald-500 to-blue-600 rounded-full text-white shadow-lg">
+                <AlertCircle className="h-12 w-12" />
+              </div>
+            </div>
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-emerald-600 via-blue-600 to-emerald-600 bg-clip-text text-transparent mb-4">
+              Examination Instructions
+            </h1>
+            <p className="text-2xl text-gray-600 font-medium">Please read carefully before starting</p>
           </div>
 
-          <Card className="shadow-xl">
-            <CardHeader>
-              <CardTitle className="flex items-center text-2xl">
-                <AlertCircle className="h-6 w-6 mr-2 text-orange-600" />
+          <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
+            <CardHeader className="pb-8">
+              <CardTitle className="flex items-center text-3xl bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
+                <AlertCircle className="h-8 w-8 mr-3 text-orange-600" />
                 Important Instructions
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Exam Details</h3>
-                  <ul className="space-y-2 text-gray-700">
-                    <li className="flex items-center">
-                      <Clock className="h-4 w-4 mr-2 text-blue-600" />
-                      Duration: 60 minutes
-                    </li>
-                    <li className="flex items-center">
-                      <FileText className="h-4 w-4 mr-2 text-green-600" />
-                      Total Questions: {getAllQuestions().length}
-                    </li>
-                    <li className="flex items-center">
-                      <BookOpen className="h-4 w-4 mr-2 text-purple-600" />
-                      Subjects: Mathematics, English, Science, General Knowledge
-                    </li>
-                  </ul>
+            <CardContent className="space-y-8">
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  <h3 className="text-2xl font-bold text-gray-900 flex items-center">
+                    <FileText className="h-6 w-6 mr-2 text-blue-600" />
+                    Exam Details
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <Clock className="h-6 w-6 mr-3 text-blue-600" />
+                      <div>
+                        <p className="font-semibold text-blue-900">Duration</p>
+                        <p className="text-blue-700">60 minutes</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center p-4 bg-green-50 rounded-lg border border-green-200">
+                      <FileText className="h-6 w-6 mr-3 text-green-600" />
+                      <div>
+                        <p className="font-semibold text-green-900">Total Questions</p>
+                        <p className="text-green-700">{getAllQuestions().length} questions</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center p-4 bg-purple-50 rounded-lg border border-purple-200">
+                      <BookOpen className="h-6 w-6 mr-3 text-purple-600" />
+                      <div>
+                        <p className="font-semibold text-purple-900">Subjects</p>
+                        <p className="text-purple-700">Mathematics, English, Science, General Knowledge</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Rules & Guidelines</h3>
-                  <ul className="space-y-2 text-gray-700 text-sm">
-                    <li>• You must complete the exam within the time limit</li>
-                    <li>• Each question has only one correct answer</li>
-                    <li>• You can switch between subjects anytime</li>
-                    <li>• You can review and change your answers</li>
-                    <li>• Use the flag feature to mark questions for review</li>
-                    <li>• The exam will auto-submit when time expires</li>
-                    <li>• Ensure stable internet connection</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
-                <h3 className="text-lg font-semibold text-blue-900 mb-3">Technical Requirements</h3>
-                <div className="grid md:grid-cols-2 gap-4 text-sm text-blue-800">
-                  <div>
-                    <p>✓ Stable internet connection</p>
-                    <p>✓ Updated web browser</p>
-                  </div>
-                  <div>
-                    <p>✓ Quiet environment</p>
-                    <p>✓ No external assistance</p>
+                <div className="space-y-6">
+                  <h3 className="text-2xl font-bold text-gray-900 flex items-center">
+                    <CheckCircle2 className="h-6 w-6 mr-2 text-green-600" />
+                    Rules & Guidelines
+                  </h3>
+                  <div className="space-y-3">
+                    {[
+                      "You must complete the exam within the time limit",
+                      "Each question has only one correct answer",
+                      "You can switch between subjects anytime",
+                      "You can review and change your answers",
+                      "Use the flag feature to mark questions for review",
+                      "The exam will auto-submit when time expires",
+                      "Ensure stable internet connection"
+                    ].map((rule, index) => (
+                      <div key={index} className="flex items-start p-3 bg-gray-50 rounded-lg">
+                        <Star className="h-5 w-5 mr-3 text-yellow-500 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-700 text-base">{rule}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-between pt-6">
-                <Button variant="outline" onClick={() => setCurrentStep(0)}>
-                  <ChevronLeft className="h-4 w-4 mr-2" />
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-8 rounded-xl border border-blue-200">
+                <h3 className="text-2xl font-bold text-blue-900 mb-6 flex items-center">
+                  <Trophy className="h-6 w-6 mr-2" />
+                  Technical Requirements
+                </h3>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    {["Stable internet connection", "Updated web browser"].map((req, index) => (
+                      <div key={index} className="flex items-center text-blue-800">
+                        <CheckCircle2 className="h-5 w-5 mr-3 text-green-600" />
+                        <span className="text-base font-medium">{req}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="space-y-3">
+                    {["Quiet environment", "No external assistance"].map((req, index) => (
+                      <div key={index} className="flex items-center text-blue-800">
+                        <CheckCircle2 className="h-5 w-5 mr-3 text-green-600" />
+                        <span className="text-base font-medium">{req}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-between pt-8">
+                <Button variant="outline" onClick={() => setCurrentStep(0)} className="h-12 px-8 text-base border-2">
+                  <ChevronLeft className="h-5 w-5 mr-2" />
                   Back to Registration
                 </Button>
-                <Button onClick={handleStartExam} className="bg-green-600 hover:bg-green-700 text-lg px-8">
-                  <CheckCircle2 className="h-5 w-5 mr-2" />
+                <Button onClick={handleStartExam} className="h-12 px-10 text-lg bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg">
+                  <CheckCircle2 className="h-6 w-6 mr-3" />
                   Start Examination
                 </Button>
               </div>
@@ -472,44 +561,59 @@ const EntranceExam = () => {
   // Examination Step
   if (currentStep === 2) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
         {/* Exam Header */}
-        <div className="bg-white border-b shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 py-4">
+        <div className="bg-white/90 backdrop-blur-sm border-b shadow-lg">
+          <div className="max-w-7xl mx-auto px-4 py-6">
             <div className="flex justify-between items-center">
-              <div className="flex items-center space-x-4">
-                <h1 className="text-xl font-semibold">Entrance Examination</h1>
-                <Badge variant="outline" className="text-sm">
-                  {subjects.find(s => s.id === currentSubject)?.name}
+              <div className="flex items-center space-x-6">
+                <div className="flex items-center">
+                  <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-white mr-4">
+                    <BookOpen className="h-6 w-6" />
+                  </div>
+                  <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    Entrance Examination
+                  </h1>
+                </div>
+                <Badge variant="outline" className="text-base px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-300">
+                  {subjects.find(s => s.id === currentSubject)?.icon} {subjects.find(s => s.id === currentSubject)?.name}
                 </Badge>
-                <span className="text-lg font-bold">
+                <div className="text-xl font-bold text-gray-700">
                   Question {currentQuestionIndex[currentSubject] + 1}/{currentSubjectQuestions.length}
-                </span>
+                </div>
               </div>
               
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center text-red-600">
-                  <Clock className="h-5 w-5 mr-2" />
-                  <span className="font-mono text-lg">{formatTime(timeLeft)}</span>
+              <div className="flex items-center space-x-6">
+                <div className="flex items-center bg-red-50 px-4 py-2 rounded-lg border border-red-200">
+                  <Clock className="h-6 w-6 mr-3 text-red-600" />
+                  <span className="font-mono text-xl font-bold text-red-600">{formatTime(timeLeft)}</span>
                 </div>
-                <Button onClick={handleSubmitExam} className="bg-green-600 hover:bg-green-700">
+                <Button onClick={handleSubmitExam} className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-base px-6 py-2">
                   Submit Exam
                 </Button>
               </div>
             </div>
-            <Progress value={getTotalProgress()} className="mt-3" />
+            <div className="mt-4">
+              <Progress value={getTotalProgress()} className="h-3 bg-gray-200" />
+              <p className="text-sm text-gray-600 mt-2">Overall Progress: {Math.round(getTotalProgress())}%</p>
+            </div>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="max-w-7xl mx-auto px-4 py-8">
           {/* Subject Tabs */}
-          <Tabs value={currentSubject} onValueChange={setCurrentSubject} className="mb-6">
-            <TabsList className="grid w-full grid-cols-4">
+          <Tabs value={currentSubject} onValueChange={setCurrentSubject} className="mb-8">
+            <TabsList className="grid w-full grid-cols-4 h-auto p-2 bg-white/50 backdrop-blur-sm">
               {subjects.map((subject) => (
-                <TabsTrigger key={subject.id} value={subject.id} className="relative">
-                  <div className="flex items-center space-x-2">
-                    <span>{subject.name}</span>
-                    <Badge variant="outline" className="text-xs">
+                <TabsTrigger 
+                  key={subject.id} 
+                  value={subject.id} 
+                  className="relative p-4 data-[state=active]:bg-white data-[state=active]:shadow-lg transition-all duration-200"
+                >
+                  <div className="flex flex-col items-center space-y-2">
+                    <div className="text-2xl">{subject.icon}</div>
+                    <span className="font-semibold">{subject.name}</span>
+                    <Badge variant="outline" className="text-xs px-2 py-1">
                       {Math.round(getSubjectProgress(subject.id))}%
                     </Badge>
                   </div>
@@ -518,29 +622,31 @@ const EntranceExam = () => {
             </TabsList>
 
             {subjects.map((subject) => (
-              <TabsContent key={subject.id} value={subject.id} className="mt-0">
+              <TabsContent key={subject.id} value={subject.id} className="mt-8">
                 {/* Question Area */}
-                <Card className="mb-6">
-                  <CardContent className="p-8">
-                    <div className="space-y-6">
-                      <div className="text-lg leading-relaxed bg-gray-50 p-6 rounded-lg border">
+                <Card className="mb-8 shadow-xl border-0 bg-white/90 backdrop-blur-sm">
+                  <CardContent className="p-10">
+                    <div className="space-y-8">
+                      <div className="text-xl leading-relaxed bg-gradient-to-r from-blue-50 to-purple-50 p-8 rounded-xl border border-blue-200 font-medium">
                         {currentQ?.question}
                       </div>
                       
                       <RadioGroup
                         value={answers[getQuestionKey(currentSubject, currentQuestionIndex[currentSubject])] || ''}
                         onValueChange={handleAnswerChange}
-                        className="space-y-4"
+                        className="space-y-5"
                       >
                         {currentQ?.options.map((option, index) => (
-                          <div key={index} className="flex items-center space-x-4 p-4 rounded-lg border-2 hover:bg-blue-50 hover:border-blue-200 transition-all">
-                            <RadioGroupItem value={index.toString()} id={`option-${index}`} className="h-5 w-5" />
-                            <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer text-lg">
-                              <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-800 font-bold rounded-full mr-4">
-                                {String.fromCharCode(65 + index)}
-                              </span>
-                              {option}
-                            </Label>
+                          <div key={index} className="group">
+                            <div className="flex items-center space-x-5 p-6 rounded-xl border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 cursor-pointer">
+                              <RadioGroupItem value={index.toString()} id={`option-${index}`} className="h-6 w-6" />
+                              <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer text-lg">
+                                <span className={`inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r ${subject.color} text-white font-bold rounded-full mr-6 shadow-lg`}>
+                                  {String.fromCharCode(65 + index)}
+                                </span>
+                                {option}
+                              </Label>
+                            </div>
                           </div>
                         ))}
                       </RadioGroup>
@@ -549,46 +655,54 @@ const EntranceExam = () => {
                 </Card>
 
                 {/* Navigation */}
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex justify-between items-center mb-8">
                   <div className="flex items-center space-x-4">
                     <Button
                       variant="outline"
                       onClick={() => handleSubjectNavigation('prev')}
                       disabled={currentQuestionIndex[currentSubject] === 0}
-                      className="bg-orange-500 text-white hover:bg-orange-600"
+                      className="h-12 px-6 text-base bg-gradient-to-r from-orange-500 to-red-500 text-white border-0 hover:from-orange-600 hover:to-red-600 disabled:opacity-50"
                     >
-                      <ChevronLeft className="h-4 w-4 mr-2" />
+                      <ChevronLeft className="h-5 w-5 mr-2" />
                       Previous
                     </Button>
                     
                     <Button
                       onClick={handleFlagQuestion}
                       variant={flaggedQuestions.has(getQuestionKey(currentSubject, currentQuestionIndex[currentSubject])) ? "default" : "outline"}
-                      className={flaggedQuestions.has(getQuestionKey(currentSubject, currentQuestionIndex[currentSubject])) ? "bg-yellow-500 hover:bg-yellow-600" : ""}
+                      className={`h-12 px-6 text-base transition-all duration-200 ${
+                        flaggedQuestions.has(getQuestionKey(currentSubject, currentQuestionIndex[currentSubject])) 
+                          ? "bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white border-0" 
+                          : "border-2 border-yellow-400 text-yellow-600 hover:bg-yellow-50"
+                      }`}
                     >
-                      <Flag className="h-4 w-4 mr-2" />
+                      <Flag className="h-5 w-5 mr-2" />
                       {flaggedQuestions.has(getQuestionKey(currentSubject, currentQuestionIndex[currentSubject])) ? 'Unflag' : 'Flag'}
                     </Button>
                     
                     <Button
                       onClick={() => handleSubjectNavigation('next')}
                       disabled={currentQuestionIndex[currentSubject] === currentSubjectQuestions.length - 1}
-                      className="bg-blue-500 hover:bg-blue-600"
+                      className="h-12 px-6 text-base bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 border-0 disabled:opacity-50"
                     >
                       Next
-                      <ChevronRight className="h-4 w-4 ml-2" />
+                      <ChevronRight className="h-5 w-5 ml-2" />
                     </Button>
                   </div>
 
-                  <div className="text-lg font-semibold text-gray-700">
-                    Total Attempted: {Object.keys(answers).length}/{getAllQuestions().length}
+                  <div className="text-lg font-bold text-gray-700 bg-white px-6 py-3 rounded-lg shadow-md">
+                    Attempted: {Object.keys(answers).length}/{getAllQuestions().length}
                   </div>
                 </div>
 
                 {/* Question Navigator for Current Subject */}
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="grid grid-cols-8 gap-3">
+                <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
+                  <CardContent className="p-8">
+                    <h3 className="text-lg font-bold text-gray-700 mb-6 flex items-center">
+                      <span className="text-2xl mr-2">{subject.icon}</span>
+                      {subject.name} Questions
+                    </h3>
+                    <div className="grid grid-cols-8 gap-4">
                       {currentSubjectQuestions.map((_, index) => {
                         const questionKey = getQuestionKey(currentSubject, index);
                         const isAnswered = answers[questionKey] !== undefined;
@@ -602,10 +716,11 @@ const EntranceExam = () => {
                             size="sm"
                             onClick={() => setCurrentQuestionIndex(prev => ({ ...prev, [currentSubject]: index }))}
                             className={`
-                              h-12 w-12 text-lg font-bold
-                              ${isAnswered ? 'bg-green-500 text-white hover:bg-green-600' : ''}
-                              ${isFlagged ? 'bg-orange-500 text-white hover:bg-orange-600' : ''}
-                              ${isCurrent ? 'ring-2 ring-blue-500' : ''}
+                              h-14 w-14 text-lg font-bold transition-all duration-200 border-2
+                              ${isAnswered ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white border-green-400 hover:from-green-600 hover:to-emerald-600' : ''}
+                              ${isFlagged ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-yellow-400 hover:from-yellow-600 hover:to-orange-600' : ''}
+                              ${isCurrent ? 'ring-4 ring-blue-300 scale-110' : ''}
+                              ${!isAnswered && !isFlagged ? 'border-gray-300 hover:border-blue-400 hover:bg-blue-50' : ''}
                             `}
                           >
                             {index + 1}
@@ -625,53 +740,74 @@ const EntranceExam = () => {
 
   // Completion Step
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-green-100 py-12">
-      <div className="max-w-4xl mx-auto px-4 text-center">
-        <div className="mb-8">
-          <CheckCircle2 className="h-24 w-24 text-green-600 mx-auto mb-4" />
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Examination Completed!</h1>
-          <p className="text-xl text-gray-600">Thank you for taking the entrance examination</p>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 relative overflow-hidden">
+      {/* Decorative Elements */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-green-200/30 to-emerald-200/30 rounded-full -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-200/30 to-green-200/30 rounded-full translate-x-1/2 translate-y-1/2 animate-pulse" />
+      
+      <div className="relative z-10 max-w-5xl mx-auto px-4 py-12 text-center">
+        <div className="mb-12 animate-fade-in">
+          <div className="flex items-center justify-center mb-8">
+            <div className="p-6 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full text-white shadow-2xl animate-bounce">
+              <CheckCircle2 className="h-16 w-16" />
+            </div>
+          </div>
+          <h1 className="text-6xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-green-600 bg-clip-text text-transparent mb-6">
+            Examination Completed!
+          </h1>
+          <p className="text-2xl text-gray-600 font-medium">Thank you for taking the entrance examination</p>
+          <div className="flex items-center justify-center mt-6 space-x-2">
+            <Trophy className="h-8 w-8 text-yellow-500" />
+            <span className="text-lg text-gray-500">Well done! Your responses have been submitted successfully.</span>
+            <Trophy className="h-8 w-8 text-yellow-500" />
+          </div>
         </div>
 
-        <Card className="shadow-xl">
-          <CardContent className="p-8">
-            <div className="space-y-6">
+        <Card className="shadow-2xl border-0 bg-white/90 backdrop-blur-sm">
+          <CardContent className="p-10">
+            <div className="space-y-10">
               <div className="text-center">
-                <h2 className="text-2xl font-semibold mb-4">What happens next?</h2>
-                <div className="grid md:grid-cols-3 gap-6">
-                  <div className="text-center">
-                    <div className="bg-blue-100 p-4 rounded-full w-16 h-16 mx-auto mb-3 flex items-center justify-center">
-                      <Mail className="h-8 w-8 text-blue-600" />
+                <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
+                  What happens next?
+                </h2>
+                <div className="grid md:grid-cols-3 gap-8">
+                  <div className="text-center group">
+                    <div className="bg-gradient-to-r from-blue-100 to-blue-200 p-6 rounded-2xl w-20 h-20 mx-auto mb-6 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                      <Mail className="h-10 w-10 text-blue-600" />
                     </div>
-                    <h3 className="font-semibold">Email Confirmation</h3>
-                    <p className="text-sm text-gray-600">You'll receive a confirmation email shortly</p>
+                    <h3 className="font-bold text-xl text-gray-900 mb-2">Email Confirmation</h3>
+                    <p className="text-gray-600">You'll receive a confirmation email shortly</p>
                   </div>
-                  <div className="text-center">
-                    <div className="bg-green-100 p-4 rounded-full w-16 h-16 mx-auto mb-3 flex items-center justify-center">
-                      <FileText className="h-8 w-8 text-green-600" />
+                  <div className="text-center group">
+                    <div className="bg-gradient-to-r from-green-100 to-green-200 p-6 rounded-2xl w-20 h-20 mx-auto mb-6 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                      <FileText className="h-10 w-10 text-green-600" />
                     </div>
-                    <h3 className="font-semibold">Results Review</h3>
-                    <p className="text-sm text-gray-600">Our team will review your responses</p>
+                    <h3 className="font-bold text-xl text-gray-900 mb-2">Results Review</h3>
+                    <p className="text-gray-600">Our team will review your responses</p>
                   </div>
-                  <div className="text-center">
-                    <div className="bg-purple-100 p-4 rounded-full w-16 h-16 mx-auto mb-3 flex items-center justify-center">
-                      <Phone className="h-8 w-8 text-purple-600" />
+                  <div className="text-center group">
+                    <div className="bg-gradient-to-r from-purple-100 to-purple-200 p-6 rounded-2xl w-20 h-20 mx-auto mb-6 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                      <Phone className="h-10 w-10 text-purple-600" />
                     </div>
-                    <h3 className="font-semibold">Contact</h3>
-                    <p className="text-sm text-gray-600">We'll contact you within 48 hours</p>
+                    <h3 className="font-bold text-xl text-gray-900 mb-2">Contact</h3>
+                    <p className="text-gray-600">We'll contact you within 48 hours</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-blue-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-blue-900 mb-2">Important Note</h3>
-                <p className="text-blue-800">
+              <div className="bg-gradient-to-r from-blue-50 to-green-50 p-8 rounded-2xl border border-blue-200">
+                <h3 className="text-2xl font-bold text-blue-900 mb-4 flex items-center justify-center">
+                  <Sparkles className="h-6 w-6 mr-2" />
+                  Important Note
+                </h3>
+                <p className="text-blue-800 text-lg leading-relaxed">
                   Your exam has been successfully submitted. Results will be communicated via email 
-                  to <strong>{studentInfo.email}</strong> within 2-3 business days.
+                  to <strong className="text-blue-900">{studentInfo.email}</strong> within 2-3 business days.
                 </p>
               </div>
 
-              <Button onClick={() => navigate('/')} className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3">
+              <Button onClick={() => navigate('/')} className="w-full h-16 text-xl bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 transition-all duration-200 shadow-lg">
+                <CheckCircle2 className="h-6 w-6 mr-3" />
                 Return to Home Page
               </Button>
             </div>
