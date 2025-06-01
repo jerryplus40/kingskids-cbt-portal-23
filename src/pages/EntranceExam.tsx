@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Clock, 
   ChevronLeft, 
@@ -47,7 +48,8 @@ const EntranceExam = () => {
     address: '',
     previousSchool: '',
     guardianName: '',
-    guardianPhone: ''
+    guardianPhone: '',
+    class: ''
   });
 
   const steps = ['Registration', 'Instructions', 'Examination', 'Completion'];
@@ -304,6 +306,22 @@ const EntranceExam = () => {
                     onChange={(e) => setStudentInfo(prev => ({ ...prev, phone: e.target.value }))}
                     placeholder="Enter your phone number"
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="class">Class Applying For *</Label>
+                  <Select value={studentInfo.class} onValueChange={(value) => setStudentInfo(prev => ({ ...prev, class: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select class" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="jss1">JSS 1</SelectItem>
+                      <SelectItem value="jss2">JSS 2</SelectItem>
+                      <SelectItem value="jss3">JSS 3</SelectItem>
+                      <SelectItem value="ss1">SS 1</SelectItem>
+                      <SelectItem value="ss2">SS 2</SelectItem>
+                      <SelectItem value="ss3">SS 3</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="dateOfBirth">Date of Birth</Label>
