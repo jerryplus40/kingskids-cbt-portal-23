@@ -1,20 +1,23 @@
 
 import { useState } from 'react';
-import { Navigate, Link } from 'react-router-dom';
+import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { BookOpen, Users, Shield, GraduationCap, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [selectedClass, setSelectedClass] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { user, login } = useAuth();
+  const navigate = useNavigate();
 
   if (user) {
     return <Navigate to={`/${user.role}`} replace />;
@@ -55,6 +58,19 @@ const Login = () => {
     setPassword(cred.password);
   };
 
+  const handleBackToHome = () => {
+    navigate('/');
+  };
+
+  const classOptions = [
+    { value: 'js1', label: 'JS 1' },
+    { value: 'js2', label: 'JS 2' },
+    { value: 'js3', label: 'JS 3' },
+    { value: 'ss1', label: 'SS 1' },
+    { value: 'ss2', label: 'SS 2' },
+    { value: 'ss3', label: 'SS 3' },
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background decorations */}
@@ -67,10 +83,14 @@ const Login = () => {
       <div className="w-full max-w-5xl relative">
         {/* Back to Home */}
         <div className="mb-6">
-          <Link to="/" className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200">
+          <Button 
+            variant="ghost" 
+            onClick={handleBackToHome}
+            className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200 hover:bg-blue-50"
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
-          </Link>
+          </Button>
         </div>
 
         <div className="text-center mb-8">
@@ -127,6 +147,21 @@ const Login = () => {
                       {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="class" className="text-sm font-medium text-gray-700">Class (For Students)</Label>
+                  <Select value={selectedClass} onValueChange={setSelectedClass}>
+                    <SelectTrigger className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                      <SelectValue placeholder="Select your class (optional)" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border border-gray-200 shadow-lg">
+                      {classOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <Button 
                   type="submit" 
