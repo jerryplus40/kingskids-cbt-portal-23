@@ -14,14 +14,14 @@ const LandingPage = () => {
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
         </div>
         
-        {/* Background Image with Fade Effect */}
+        {/* Background Image with Darker Blue Gradient */}
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage: `url('/lovable-uploads/e4a8a139-6d15-4362-8f9c-e7a1dd26024f.png')`
           }}
         ></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-orange-500/30 via-orange-600/40 to-slate-900/80"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-800/40 via-blue-900/50 to-slate-900/80"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-slate-50 via-transparent to-transparent opacity-60"></div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
