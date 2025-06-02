@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, Download, Clock, CheckCircle2, Bell, Filter } from 'lucide-react';
 import { useExam } from '../../contexts/ExamContext';
 import { toast } from '@/hooks/use-toast';
+import { DetailedResultView } from './DetailedResultView';
 
 interface StudentSubmission {
   id: string;
@@ -18,6 +18,7 @@ interface StudentSubmission {
   subject: string;
   score: number;
   totalQuestions: number;
+  marksPerQuestion: number;
   submissionTime: string;
   timeSpent: string;
   isNew: boolean;
@@ -26,8 +27,9 @@ interface StudentSubmission {
 export const StudentResults = () => {
   const { exams } = useExam();
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'new' | 'reviewed'>('all');
+  const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(null);
 
-  // Mock student submissions data with real exam references
+  // Mock student submissions data with marks per question
   const [studentSubmissions] = useState<StudentSubmission[]>([
     {
       id: '1',
@@ -36,8 +38,9 @@ export const StudentResults = () => {
       examId: exams[0]?.id || '1',
       examTitle: exams[0]?.title || 'Mathematics Mid-Term',
       subject: exams[0]?.subject || 'Mathematics',
-      score: 17,
+      score: 85,
       totalQuestions: 20,
+      marksPerQuestion: 5,
       submissionTime: '2024-06-02 14:30:00',
       timeSpent: '45 minutes',
       isNew: true
@@ -49,8 +52,9 @@ export const StudentResults = () => {
       examId: exams[0]?.id || '1',
       examTitle: exams[0]?.title || 'Mathematics Mid-Term',
       subject: exams[0]?.subject || 'Mathematics',
-      score: 16,
+      score: 80,
       totalQuestions: 20,
+      marksPerQuestion: 5,
       submissionTime: '2024-06-02 14:15:00',
       timeSpent: '42 minutes',
       isNew: true
@@ -62,8 +66,9 @@ export const StudentResults = () => {
       examId: exams[1]?.id || '2',
       examTitle: exams[1]?.title || 'Physics Quiz',
       subject: exams[1]?.subject || 'Physics',
-      score: 18,
+      score: 90,
       totalQuestions: 20,
+      marksPerQuestion: 5,
       submissionTime: '2024-06-01 16:20:00',
       timeSpent: '38 minutes',
       isNew: false
@@ -78,16 +83,22 @@ export const StudentResults = () => {
   });
 
   const handleViewResult = (submissionId: string) => {
-    toast({
-      title: "Viewing Result",
-      description: "Opening detailed exam result view...",
-    });
+    setSelectedSubmissionId(submissionId);
   };
 
+  if (selectedSubmissionId) {
+    return (
+      <DetailedResultView 
+        submissionId={selectedSubmissionId}
+        onClose={() => setSelectedSubmissionId(null)}
+      />
+    );
+  }
+
   const handleDownloadResult = (submission: StudentSubmission) => {
-    // Create mock CSV data
+    // Create mock CSV data with marks per question
     const csvData = [
-      ['Student Name', 'Class', 'Exam', 'Subject', 'Score', 'Total Questions', 'Percentage', 'Submission Time', 'Time Spent'],
+      ['Student Name', 'Class', 'Exam', 'Subject', 'Score', 'Total Questions', 'Marks Per Question', 'Total Possible Marks', 'Percentage', 'Submission Time', 'Time Spent'],
       [
         submission.studentName,
         submission.studentClass,
@@ -95,7 +106,9 @@ export const StudentResults = () => {
         submission.subject,
         submission.score.toString(),
         submission.totalQuestions.toString(),
-        `${Math.round((submission.score / submission.totalQuestions) * 100)}%`,
+        submission.marksPerQuestion.toString(),
+        (submission.totalQuestions * submission.marksPerQuestion).toString(),
+        `${Math.round((submission.score / (submission.totalQuestions * submission.marksPerQuestion)) * 100)}%`,
         submission.submissionTime,
         submission.timeSpent
       ]
@@ -123,7 +136,7 @@ export const StudentResults = () => {
 
   const handleDownloadAllResults = () => {
     const csvData = [
-      ['Student Name', 'Class', 'Exam', 'Subject', 'Score', 'Total Questions', 'Percentage', 'Submission Time', 'Time Spent']
+      ['Student Name', 'Class', 'Exam', 'Subject', 'Score', 'Total Questions', 'Marks Per Question', 'Total Possible Marks', 'Percentage', 'Submission Time', 'Time Spent']
     ];
 
     filteredSubmissions.forEach(submission => {
@@ -134,7 +147,9 @@ export const StudentResults = () => {
         submission.subject,
         submission.score.toString(),
         submission.totalQuestions.toString(),
-        `${Math.round((submission.score / submission.totalQuestions) * 100)}%`,
+        submission.marksPerQuestion.toString(),
+        (submission.totalQuestions * submission.marksPerQuestion).toString(),
+        `${Math.round((submission.score / (submission.totalQuestions * submission.marksPerQuestion)) * 100)}%`,
         submission.submissionTime,
         submission.timeSpent
       ]);
@@ -160,8 +175,8 @@ export const StudentResults = () => {
     });
   };
 
-  const getScoreBadge = (score: number, total: number) => {
-    const percentage = (score / total) * 100;
+  const getScoreBadge = (score: number, totalQuestions: number, marksPerQuestion: number) => {
+    const percentage = (score / (totalQuestions * marksPerQuestion)) * 100;
     if (percentage >= 80) return <Badge className="bg-green-100 text-green-800">Excellent</Badge>;
     if (percentage >= 70) return <Badge className="bg-blue-100 text-blue-800">Good</Badge>;
     if (percentage >= 60) return <Badge className="bg-yellow-100 text-yellow-800">Average</Badge>;
@@ -254,13 +269,14 @@ export const StudentResults = () => {
                   </TableCell>
                   <TableCell>
                     <div className="text-center">
-                      <p className="text-lg font-bold">{submission.score}/{submission.totalQuestions}</p>
+                      <p className="text-lg font-bold">{submission.score}/{submission.totalQuestions * submission.marksPerQuestion}</p>
                       <p className="text-sm text-gray-600">
-                        {Math.round((submission.score / submission.totalQuestions) * 100)}%
+                        {Math.round((submission.score / (submission.totalQuestions * submission.marksPerQuestion)) * 100)}%
                       </p>
+                      <p className="text-xs text-gray-500">{submission.marksPerQuestion} marks/question</p>
                     </div>
                   </TableCell>
-                  <TableCell>{getScoreBadge(submission.score, submission.totalQuestions)}</TableCell>
+                  <TableCell>{getScoreBadge(submission.score, submission.totalQuestions, submission.marksPerQuestion)}</TableCell>
                   <TableCell>
                     <div className="text-sm">
                       <p>{new Date(submission.submissionTime).toLocaleDateString()}</p>

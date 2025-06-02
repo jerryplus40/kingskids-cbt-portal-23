@@ -10,6 +10,7 @@ interface ExamFormData {
   class: string;
   duration: string;
   totalMarks: string;
+  marksPerQuestion: string;
   instructions: string;
   deadline: string;
 }
@@ -27,15 +28,16 @@ export const ExamForm = ({ onCreateExam, onCancel }: ExamFormProps) => {
     class: '',
     duration: '',
     totalMarks: '',
+    marksPerQuestion: '',
     instructions: '',
     deadline: ''
   });
 
   const handleExamDetailsSubmit = () => {
-    if (!examData.subject || !examData.title || !examData.class || !examData.duration) {
+    if (!examData.subject || !examData.title || !examData.class || !examData.duration || !examData.marksPerQuestion) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all required fields",
+        description: "Please fill in all required fields including marks per question",
         variant: "destructive"
       });
       return;

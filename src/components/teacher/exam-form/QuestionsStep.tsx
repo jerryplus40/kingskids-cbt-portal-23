@@ -25,6 +25,7 @@ interface ExamFormData {
   class: string;
   duration: string;
   totalMarks: string;
+  marksPerQuestion: string;
   instructions: string;
   deadline: string;
 }
@@ -107,6 +108,7 @@ export const QuestionsStep = ({ examData, onBackToDetails, onSaveExam, onCancel 
       questions: questions.length,
       deadline: examData.deadline,
       totalMarks: examData.totalMarks,
+      marksPerQuestion: parseInt(examData.marksPerQuestion),
       instructions: examData.instructions,
       status: 'available',
       examQuestions: questions.map(q => ({

@@ -12,6 +12,7 @@ interface ExamFormData {
   class: string;
   duration: string;
   totalMarks: string;
+  marksPerQuestion: string;
   instructions: string;
   deadline: string;
 }
@@ -93,6 +94,16 @@ export const ExamDetailsForm = ({ examData, setExamData, onNext, onCancel }: Exa
               value={examData.totalMarks}
               onChange={(e) => setExamData({...examData, totalMarks: e.target.value})}
               placeholder="100"
+            />
+          </div>
+          <div>
+            <Label htmlFor="marksPerQuestion">Marks Per Question *</Label>
+            <Input
+              id="marksPerQuestion"
+              type="number"
+              value={examData.marksPerQuestion}
+              onChange={(e) => setExamData({...examData, marksPerQuestion: e.target.value})}
+              placeholder="5"
             />
           </div>
           <div>

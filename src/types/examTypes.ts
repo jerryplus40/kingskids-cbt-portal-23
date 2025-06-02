@@ -28,6 +28,7 @@ export interface Exam {
   deadline: string;
   status: 'active' | 'completed' | 'draft' | 'available' | 'expired';
   totalMarks?: string;
+  marksPerQuestion?: number;
   instructions?: string;
   attempts?: number;
   maxAttempts?: number;
