@@ -1,52 +1,22 @@
 
 import { useState } from 'react';
-import { Navigate, Link, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from '@/hooks/use-toast';
-import { BookOpen, Users, Shield, GraduationCap, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { BookOpen, ArrowLeft } from 'lucide-react';
+import BackgroundDecorations from '@/components/login/BackgroundDecorations';
+import LoginForm from '@/components/login/LoginForm';
+import QuickDemoAccess from '@/components/login/QuickDemoAccess';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [selectedClass, setSelectedClass] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const { user, login } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   if (user) {
     return <Navigate to={`/${user.role}`} replace />;
   }
-
-  // Determine if current user is a student based on email
-  const isStudentEmail = email === 'student@test.com';
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    const success = await login(email, password);
-    
-    if (success) {
-      toast({
-        title: "Login successful",
-        description: "Welcome to King's Kids CBT Portal",
-      });
-    } else {
-      toast({
-        title: "Login failed",
-        description: "Invalid email or password",
-        variant: "destructive",
-      });
-    }
-    
-    setIsLoading(false);
-  };
 
   const quickLogin = (role: string) => {
     const credentials = {
@@ -65,23 +35,9 @@ const Login = () => {
     navigate('/landing');
   };
 
-  const classOptions = [
-    { value: 'SS1A', label: 'SS1A' },
-    { value: 'SS1B', label: 'SS1B' },
-    { value: 'SS2A', label: 'SS2A' },
-    { value: 'SS2B', label: 'SS2B' },
-    { value: 'SS3A', label: 'SS3A' },
-    { value: 'SS3B', label: 'SS3B' },
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute top-40 left-1/2 transform -translate-x-1/2 w-80 h-80 bg-indigo-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-      </div>
+      <BackgroundDecorations />
 
       <div className="w-full max-w-5xl relative">
         {/* Back to Home */}
@@ -107,155 +63,13 @@ const Login = () => {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
-          <Card className="shadow-2xl border-0 backdrop-blur-sm bg-white/90">
-            <CardHeader className="space-y-1 pb-6">
-              <CardTitle className="text-2xl text-center font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Sign In to Your Account
-              </CardTitle>
-              <CardDescription className="text-center text-gray-600">
-                Enter your credentials to access the portal
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email Address</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email"
-                    className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-medium text-gray-700">Password</Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter your password"
-                      className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 pr-12"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    >
-                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                    </button>
-                  </div>
-                </div>
-                {/* Only show class selection for students */}
-                {isStudentEmail && (
-                  <div className="space-y-2">
-                    <Label htmlFor="class" className="text-sm font-medium text-gray-700">Class</Label>
-                    <Select value={selectedClass} onValueChange={setSelectedClass}>
-                      <SelectTrigger className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                        <SelectValue placeholder="Select your class" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white border border-gray-200 shadow-lg">
-                        {classOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-                <Button 
-                  type="submit" 
-                  className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <div className="flex items-center">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                      Signing In...
-                    </div>
-                  ) : (
-                    'Sign In'
-                  )}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-2xl border-0 backdrop-blur-sm bg-white/90">
-            <CardHeader className="space-y-1 pb-6">
-              <CardTitle className="text-xl text-center font-bold text-gray-900">
-                Quick Demo Access
-              </CardTitle>
-              <CardDescription className="text-center text-gray-600">
-                Explore different portal views instantly
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Button 
-                onClick={() => quickLogin('student')} 
-                variant="outline" 
-                className="w-full h-14 justify-start border-2 hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 group"
-              >
-                <div className="bg-blue-100 p-2 rounded-lg mr-4 group-hover:bg-blue-500 transition-colors duration-300">
-                  <GraduationCap className="h-5 w-5 text-blue-600 group-hover:text-white" />
-                </div>
-                <div className="text-left">
-                  <div className="font-semibold text-gray-900">Student Portal</div>
-                  <div className="text-sm text-gray-500">Take exams and view results</div>
-                </div>
-              </Button>
-              <Button 
-                onClick={() => quickLogin('teacher')} 
-                variant="outline" 
-                className="w-full h-14 justify-start border-2 hover:border-green-500 hover:bg-green-50 transition-all duration-300 group"
-              >
-                <div className="bg-green-100 p-2 rounded-lg mr-4 group-hover:bg-green-500 transition-colors duration-300">
-                  <BookOpen className="h-5 w-5 text-green-600 group-hover:text-white" />
-                </div>
-                <div className="text-left">
-                  <div className="font-semibold text-gray-900">Teacher Portal</div>
-                  <div className="text-sm text-gray-500">Create and manage exams</div>
-                </div>
-              </Button>
-              <Button 
-                onClick={() => quickLogin('parent')} 
-                variant="outline" 
-                className="w-full h-14 justify-start border-2 hover:border-purple-500 hover:bg-purple-50 transition-all duration-300 group"
-              >
-                <div className="bg-purple-100 p-2 rounded-lg mr-4 group-hover:bg-purple-500 transition-colors duration-300">
-                  <Users className="h-5 w-5 text-purple-600 group-hover:text-white" />
-                </div>
-                <div className="text-left">
-                  <div className="font-semibold text-gray-900">Parent Portal</div>
-                  <div className="text-sm text-gray-500">Monitor child's progress</div>
-                </div>
-              </Button>
-              <Button 
-                onClick={() => quickLogin('admin')} 
-                variant="outline" 
-                className="w-full h-14 justify-start border-2 hover:border-red-500 hover:bg-red-50 transition-all duration-300 group"
-              >
-                <div className="bg-red-100 p-2 rounded-lg mr-4 group-hover:bg-red-500 transition-colors duration-300">
-                  <Shield className="h-5 w-5 text-red-600 group-hover:text-white" />
-                </div>
-                <div className="text-left">
-                  <div className="font-semibold text-gray-900">Admin Portal</div>
-                  <div className="text-sm text-gray-500">System management</div>
-                </div>
-              </Button>
-              <div className="mt-6 p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
-                <p className="text-xs text-gray-600 text-center leading-relaxed">
-                  <strong>Demo credentials:</strong> Use any email above with password: <span className="font-mono bg-gray-200 px-2 py-1 rounded">password</span>
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <LoginForm 
+            email={email}
+            setEmail={setEmail}
+            password={password}
+            setPassword={setPassword}
+          />
+          <QuickDemoAccess onQuickLogin={quickLogin} />
         </div>
       </div>
     </div>
