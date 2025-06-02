@@ -29,7 +29,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, title }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <Link to="/" className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors duration-200">
+              <Link to="/landing" className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors duration-200">
                 <Home className="h-5 w-5" />
                 <span className="hidden sm:block text-sm font-medium">Home</span>
               </Link>

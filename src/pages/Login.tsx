@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -59,7 +58,7 @@ const Login = () => {
   };
 
   const handleBackToHome = () => {
-    navigate('/');
+    navigate('/landing');
   };
 
   const classOptions = [
