@@ -22,8 +22,10 @@ import {
   BarChart3
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { useExam } from '../contexts/ExamContext';
 
 const TeacherDashboard = () => {
+  const { exams, questions, addExam, addQuestion, deleteExam, deleteQuestion } = useExam();
   const [showCreateExam, setShowCreateExam] = useState(false);
   const [showCreateQuestion, setShowCreateQuestion] = useState(false);
   const [newExam, setNewExam] = useState({
@@ -97,9 +99,19 @@ const TeacherDashboard = () => {
       return;
     }
 
+    addExam({
+      subject: newExam.subject,
+      title: newExam.title,
+      duration: parseInt(newExam.duration),
+      questions: 0,
+      deadline: newExam.deadline,
+      totalMarks: newExam.totalMarks,
+      instructions: newExam.instructions
+    });
+
     toast({
       title: "Exam Created",
-      description: `${newExam.title} has been created successfully`,
+      description: `${newExam.title} has been created successfully and is now available to students`,
     });
 
     setNewExam({
@@ -125,6 +137,18 @@ const TeacherDashboard = () => {
       return;
     }
 
+    addQuestion({
+      question: newQuestion.question,
+      subject: newQuestion.subject,
+      difficulty: newQuestion.difficulty as 'Easy' | 'Medium' | 'Hard',
+      optionA: newQuestion.optionA,
+      optionB: newQuestion.optionB,
+      optionC: newQuestion.optionC,
+      optionD: newQuestion.optionD,
+      optionE: newQuestion.optionE,
+      correctAnswer: newQuestion.correctAnswer as 'A' | 'B' | 'C' | 'D' | 'E'
+    });
+
     toast({
       title: "Question Created",
       description: "Question has been added to your question bank",
@@ -147,6 +171,7 @@ const TeacherDashboard = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active': return <Badge className="bg-green-100 text-green-800">Active</Badge>;
+      case 'available': return <Badge className="bg-blue-100 text-blue-800">Available</Badge>;
       case 'completed': return <Badge className="bg-blue-100 text-blue-800">Completed</Badge>;
       case 'draft': return <Badge className="bg-gray-100 text-gray-800">Draft</Badge>;
       default: return <Badge variant="outline">{status}</Badge>;
@@ -172,7 +197,7 @@ const TeacherDashboard = () => {
               <div className="flex items-center">
                 <FileText className="h-8 w-8 text-blue-600" />
                 <div className="ml-4">
-                  <p className="text-2xl font-bold">{myExams.length}</p>
+                  <p className="text-2xl font-bold">{exams.length}</p>
                   <p className="text-gray-600">My Exams</p>
                 </div>
               </div>
@@ -196,7 +221,7 @@ const TeacherDashboard = () => {
               <div className="flex items-center">
                 <BookOpen className="h-8 w-8 text-purple-600" />
                 <div className="ml-4">
-                  <p className="text-2xl font-bold">{questionBank.length}</p>
+                  <p className="text-2xl font-bold">{questions.length}</p>
                   <p className="text-gray-600">Questions</p>
                 </div>
               </div>
@@ -319,7 +344,7 @@ const TeacherDashboard = () => {
               )}
 
               <div className="space-y-4">
-                {myExams.map((exam) => (
+                {exams.map((exam) => (
                   <Card key={exam.id}>
                     <CardContent className="p-6">
                       <div className="flex justify-between items-start">
@@ -330,14 +355,14 @@ const TeacherDashboard = () => {
                           </div>
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
                             <div>Subject: <span className="font-medium">{exam.subject}</span></div>
-                            <div>Class: <span className="font-medium">{exam.class}</span></div>
+                            <div>Class: <span className="font-medium">{exam.class || 'All Classes'}</span></div>
                             <div>Duration: <span className="font-medium">{exam.duration} min</span></div>
                             <div>Questions: <span className="font-medium">{exam.questions}</span></div>
                           </div>
                           <div className="flex items-center space-x-6 mt-2 text-sm">
                             <div className="flex items-center">
                               <Users className="h-4 w-4 mr-1" />
-                              {exam.submitted}/{exam.students} submitted
+                              {exam.submitted || 0}/{exam.students || 0} submitted
                             </div>
                             <div className="flex items-center">
                               <Calendar className="h-4 w-4 mr-1" />
@@ -352,7 +377,7 @@ const TeacherDashboard = () => {
                           <Button variant="outline" size="sm">
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" onClick={() => deleteExam(exam.id)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
@@ -516,7 +541,7 @@ const TeacherDashboard = () => {
               )}
 
               <div className="space-y-4">
-                {questionBank.map((question) => (
+                {questions.map((question) => (
                   <Card key={question.id}>
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start">
@@ -528,13 +553,14 @@ const TeacherDashboard = () => {
                               {question.difficulty}
                             </span>
                             <span className="text-gray-600">{question.type}</span>
+                            <span className="text-blue-600 font-medium">Answer: {question.correctAnswer}</span>
                           </div>
                         </div>
                         <div className="flex space-x-2">
                           <Button variant="outline" size="sm">
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" onClick={() => deleteQuestion(question.id)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>

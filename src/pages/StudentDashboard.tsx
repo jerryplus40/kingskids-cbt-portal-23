@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Layout } from '../components/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,44 +18,15 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useExam } from '../contexts/ExamContext';
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { exams } = useExam();
   
-  // Mock data
-  const availableExams = [
-    { 
-      id: '1', 
-      subject: 'Mathematics', 
-      duration: 90, 
-      questions: 50, 
-      deadline: '2024-06-15', 
-      status: 'available',
-      attempts: 0,
-      maxAttempts: 1
-    },
-    { 
-      id: '2', 
-      subject: 'English Language', 
-      duration: 120, 
-      questions: 60, 
-      deadline: '2024-06-16', 
-      status: 'available',
-      attempts: 0,
-      maxAttempts: 1
-    },
-    { 
-      id: '3', 
-      subject: 'Chemistry', 
-      duration: 100, 
-      questions: 40, 
-      deadline: '2024-06-14', 
-      status: 'expired',
-      attempts: 1,
-      maxAttempts: 1
-    },
-  ];
+  // Filter exams that are available to students
+  const availableExams = exams.filter(exam => exam.status === 'available' || exam.status === 'active');
 
   const completedExams = [
     { subject: 'Physics', score: 85, totalMarks: 100, date: '2024-05-20', grade: 'A' },
@@ -65,8 +35,8 @@ const StudentDashboard = () => {
   ];
 
   const stats = {
-    totalExams: 8,
-    completed: 5,
+    totalExams: availableExams.length + completedExams.length,
+    completed: completedExams.length,
     average: 85,
     rank: 3
   };
@@ -75,7 +45,7 @@ const StudentDashboard = () => {
     navigate(`/exam/${examId}`);
   };
 
-  const getStatusBadge = (status: string, attempts: number, maxAttempts: number) => {
+  const getStatusBadge = (status: string, attempts: number = 0, maxAttempts: number = 1) => {
     if (status === 'expired') return <Badge variant="destructive">Expired</Badge>;
     if (attempts >= maxAttempts) return <Badge variant="secondary">Completed</Badge>;
     return <Badge variant="default">Available</Badge>;
@@ -152,45 +122,53 @@ const StudentDashboard = () => {
               <CardHeader>
                 <CardTitle>Available Exams</CardTitle>
                 <CardDescription>
-                  Click "Start Exam" to begin taking your exams
+                  Click "Start Exam" to begin taking your exams. New exams appear here when your teachers create them.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {availableExams.map((exam) => (
-                    <div key={exam.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <h3 className="font-semibold">{exam.subject}</h3>
-                          {getStatusBadge(exam.status, exam.attempts, exam.maxAttempts)}
-                        </div>
-                        <div className="flex items-center space-x-6 text-sm text-gray-600">
-                          <div className="flex items-center">
-                            <Clock className="h-4 w-4 mr-1" />
-                            {exam.duration} minutes
-                          </div>
-                          <div className="flex items-center">
-                            <FileText className="h-4 w-4 mr-1" />
-                            {exam.questions} questions
-                          </div>
-                          <div className="flex items-center">
-                            <Calendar className="h-4 w-4 mr-1" />
-                            Due: {exam.deadline}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="ml-4">
-                        <Button 
-                          onClick={() => startExam(exam.id)}
-                          disabled={exam.status === 'expired' || exam.attempts >= exam.maxAttempts}
-                          className="bg-blue-600 hover:bg-blue-700"
-                        >
-                          <Play className="h-4 w-4 mr-2" />
-                          Start Exam
-                        </Button>
-                      </div>
+                  {availableExams.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <FileText className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                      <p>No exams available at the moment.</p>
+                      <p className="text-sm">Check back later for new exams from your teachers.</p>
                     </div>
-                  ))}
+                  ) : (
+                    availableExams.map((exam) => (
+                      <div key={exam.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-2">
+                            <h3 className="font-semibold">{exam.title}</h3>
+                            {getStatusBadge(exam.status, exam.attempts, exam.maxAttempts)}
+                          </div>
+                          <div className="flex items-center space-x-6 text-sm text-gray-600">
+                            <div className="flex items-center">
+                              <Clock className="h-4 w-4 mr-1" />
+                              {exam.duration} minutes
+                            </div>
+                            <div className="flex items-center">
+                              <FileText className="h-4 w-4 mr-1" />
+                              {exam.questions} questions
+                            </div>
+                            <div className="flex items-center">
+                              <Calendar className="h-4 w-4 mr-1" />
+                              Due: {exam.deadline || 'No deadline'}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="ml-4">
+                          <Button 
+                            onClick={() => startExam(exam.id)}
+                            disabled={exam.status === 'expired' || (exam.attempts || 0) >= (exam.maxAttempts || 1)}
+                            className="bg-blue-600 hover:bg-blue-700"
+                          >
+                            <Play className="h-4 w-4 mr-2" />
+                            Start Exam
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
