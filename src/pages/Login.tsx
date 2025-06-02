@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -21,6 +22,9 @@ const Login = () => {
   if (user) {
     return <Navigate to={`/${user.role}`} replace />;
   }
+
+  // Determine if current user is a student based on email
+  const isStudentEmail = email === 'student@test.com';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,12 +66,12 @@ const Login = () => {
   };
 
   const classOptions = [
-    { value: 'js1', label: 'JS 1' },
-    { value: 'js2', label: 'JS 2' },
-    { value: 'js3', label: 'JS 3' },
-    { value: 'ss1', label: 'SS 1' },
-    { value: 'ss2', label: 'SS 2' },
-    { value: 'ss3', label: 'SS 3' },
+    { value: 'SS1A', label: 'SS1A' },
+    { value: 'SS1B', label: 'SS1B' },
+    { value: 'SS2A', label: 'SS2A' },
+    { value: 'SS2B', label: 'SS2B' },
+    { value: 'SS3A', label: 'SS3A' },
+    { value: 'SS3B', label: 'SS3B' },
   ];
 
   return (
@@ -147,21 +151,24 @@ const Login = () => {
                     </button>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="class" className="text-sm font-medium text-gray-700">Class (For Students)</Label>
-                  <Select value={selectedClass} onValueChange={setSelectedClass}>
-                    <SelectTrigger className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                      <SelectValue placeholder="Select your class (optional)" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border border-gray-200 shadow-lg">
-                      {classOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* Only show class selection for students */}
+                {isStudentEmail && (
+                  <div className="space-y-2">
+                    <Label htmlFor="class" className="text-sm font-medium text-gray-700">Class</Label>
+                    <Select value={selectedClass} onValueChange={setSelectedClass}>
+                      <SelectTrigger className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                        <SelectValue placeholder="Select your class" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border border-gray-200 shadow-lg">
+                        {classOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 <Button 
                   type="submit" 
                   className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"

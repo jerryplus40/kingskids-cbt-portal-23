@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Layout } from '../components/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,10 +23,10 @@ import { useExam } from '../contexts/ExamContext';
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { exams } = useExam();
+  const { getExamsByClass } = useExam();
   
-  // Filter exams that are available to students
-  const availableExams = exams.filter(exam => exam.status === 'available' || exam.status === 'active');
+  // Get exams specific to the student's class
+  const availableExams = user?.classId ? getExamsByClass(user.classId) : [];
 
   const completedExams = [
     { subject: 'Physics', score: 85, totalMarks: 100, date: '2024-05-20', grade: 'A' },
@@ -44,9 +43,8 @@ const StudentDashboard = () => {
 
   const startExam = (examId: string, examTitle: string) => {
     console.log(`Starting exam: ${examTitle} (ID: ${examId})`);
-    // Navigate to the specific exam without redirecting to other exams
     navigate(`/exam/${examId}`, { 
-      state: { examTitle } // Pass exam title to ensure we're accessing the right exam
+      state: { examTitle }
     });
   };
 
@@ -125,9 +123,9 @@ const StudentDashboard = () => {
           <TabsContent value="exams">
             <Card>
               <CardHeader>
-                <CardTitle>Available Exams</CardTitle>
+                <CardTitle>Available Exams for Class {user?.classId}</CardTitle>
                 <CardDescription>
-                  Click "Start Exam" to begin taking your exams. Each exam can be selected and accessed individually.
+                  Exams assigned to your class. Click "Start Exam" to begin taking your exams.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -135,7 +133,7 @@ const StudentDashboard = () => {
                   {availableExams.length === 0 ? (
                     <div className="text-center py-8 text-gray-500">
                       <FileText className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                      <p>No exams available at the moment.</p>
+                      <p>No exams available for your class at the moment.</p>
                       <p className="text-sm">Check back later for new exams from your teachers.</p>
                     </div>
                   ) : (
@@ -146,6 +144,7 @@ const StudentDashboard = () => {
                             <h3 className="font-semibold">{exam.title}</h3>
                             {getStatusBadge(exam.status, exam.attempts, exam.maxAttempts)}
                             <Badge variant="outline">{exam.subject}</Badge>
+                            <Badge variant="secondary">{exam.class}</Badge>
                           </div>
                           <div className="flex items-center space-x-6 text-sm text-gray-600">
                             <div className="flex items-center">
@@ -191,6 +190,8 @@ const StudentDashboard = () => {
             </Card>
           </TabsContent>
 
+          
+          
           <TabsContent value="results">
             <Card>
               <CardHeader>

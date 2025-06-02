@@ -80,6 +80,10 @@ export const ExamProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return questions.filter(question => question.examId === examId);
   };
 
+  const getExamsByClass = (className: string) => {
+    return exams.filter(exam => exam.class === className && (exam.status === 'available' || exam.status === 'active'));
+  };
+
   const updateExamQuestionCount = (examId: string) => {
     setExams(prev => prev.map(exam => {
       if (exam.id === examId) {
@@ -102,6 +106,7 @@ export const ExamProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     deleteExamQuestion,
     getQuestionsByClass,
     getExamQuestions,
+    getExamsByClass,
     updateExamQuestionCount
   };
 

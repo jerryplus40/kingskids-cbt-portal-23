@@ -45,5 +45,6 @@ export interface ExamContextType {
   deleteExamQuestion: (id: string) => void;
   getQuestionsByClass: (className: string) => Question[];
   getExamQuestions: (examId: string) => Question[];
+  getExamsByClass: (className: string) => Exam[];
   updateExamQuestionCount: (examId: string) => void;
 }
