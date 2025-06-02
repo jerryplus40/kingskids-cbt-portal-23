@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -61,7 +60,8 @@ export const ExamQuestionEntry = ({ exam, onClose }: ExamQuestionEntryProps) => 
       ...newQuestion,
       subject: exam.subject,
       class: exam.class || '',
-      examId: exam.id
+      examId: exam.id,
+      type: 'Multiple Choice'
     };
 
     addExamQuestion(questionData);
