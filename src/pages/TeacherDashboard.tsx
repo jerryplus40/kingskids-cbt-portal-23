@@ -9,6 +9,7 @@ import { TeacherStats } from '../components/teacher/TeacherStats';
 import { ExamForm } from '../components/teacher/ExamForm';
 import { QuestionForm } from '../components/teacher/QuestionForm';
 import { BulkQuestionForm } from '../components/teacher/BulkQuestionForm';
+import { ExamBulkQuestionForm } from '../components/teacher/ExamBulkQuestionForm';
 import { ExamList } from '../components/teacher/ExamList';
 import { QuestionList } from '../components/teacher/QuestionList';
 import { StudentResults } from '../components/teacher/StudentResults';
@@ -20,6 +21,8 @@ const TeacherDashboard = () => {
   const [showCreateExam, setShowCreateExam] = useState(false);
   const [showCreateQuestion, setShowCreateQuestion] = useState(false);
   const [showBulkQuestions, setShowBulkQuestions] = useState(false);
+  const [showExamBulkQuestions, setShowExamBulkQuestions] = useState(false);
+  const [selectedExamForBulk, setSelectedExamForBulk] = useState<string | null>(null);
   const [currentExamId, setCurrentExamId] = useState<string | null>(null);
   const [showExamQuestionEntry, setShowExamQuestionEntry] = useState(false);
 
@@ -41,12 +44,42 @@ const TeacherDashboard = () => {
     setShowBulkQuestions(false);
   };
 
+  const handleCreateExamBulkQuestions = (questionsData: any[]) => {
+    addBulkQuestions(questionsData);
+    setShowExamBulkQuestions(false);
+    setSelectedExamForBulk(null);
+  };
+
+  const handleAddBulkQuestionsToExam = (examId: string) => {
+    setSelectedExamForBulk(examId);
+    setShowExamBulkQuestions(true);
+  };
+
   const handleExamQuestionEntryClose = () => {
     setShowExamQuestionEntry(false);
     setCurrentExamId(null);
   };
 
   const currentExam = currentExamId ? exams.find(exam => exam.id === currentExamId) : null;
+  const selectedExamForBulkQuestions = selectedExamForBulk ? exams.find(exam => exam.id === selectedExamForBulk) : null;
+
+  // If showing exam bulk question entry, show that component
+  if (showExamBulkQuestions && selectedExamForBulkQuestions) {
+    return (
+      <Layout title="Add Bulk Questions to Exam">
+        <div className="px-4 sm:px-0">
+          <ExamBulkQuestionForm 
+            exam={selectedExamForBulkQuestions}
+            onCreateBulkQuestions={handleCreateExamBulkQuestions}
+            onCancel={() => {
+              setShowExamBulkQuestions(false);
+              setSelectedExamForBulk(null);
+            }}
+          />
+        </div>
+      </Layout>
+    );
+  }
 
   // If showing exam question entry, show that component
   if (showExamQuestionEntry && currentExam) {
@@ -92,7 +125,11 @@ const TeacherDashboard = () => {
                 />
               )}
 
-              <ExamList exams={exams} onDeleteExam={deleteExam} />
+              <ExamList 
+                exams={exams} 
+                onDeleteExam={deleteExam} 
+                onAddBulkQuestions={handleAddBulkQuestionsToExam}
+              />
             </div>
           </TabsContent>
 

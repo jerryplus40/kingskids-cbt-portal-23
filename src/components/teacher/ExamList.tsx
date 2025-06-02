@@ -2,15 +2,16 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Edit, Trash2, Eye, Users, Calendar } from 'lucide-react';
+import { Edit, Trash2, Eye, Users, Calendar, Plus } from 'lucide-react';
 import { Exam } from '../../contexts/ExamContext';
 
 interface ExamListProps {
   exams: Exam[];
   onDeleteExam: (id: string) => void;
+  onAddBulkQuestions?: (examId: string) => void;
 }
 
-export const ExamList = ({ exams, onDeleteExam }: ExamListProps) => {
+export const ExamList = ({ exams, onDeleteExam, onAddBulkQuestions }: ExamListProps) => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active': return <Badge className="bg-green-100 text-green-800">Active</Badge>;
@@ -50,6 +51,17 @@ export const ExamList = ({ exams, onDeleteExam }: ExamListProps) => {
                 </div>
               </div>
               <div className="flex space-x-2">
+                {onAddBulkQuestions && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => onAddBulkQuestions(exam.id)}
+                    className="bg-green-50 hover:bg-green-100"
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add Questions
+                  </Button>
+                )}
                 <Button variant="outline" size="sm">
                   <Eye className="h-4 w-4" />
                 </Button>
