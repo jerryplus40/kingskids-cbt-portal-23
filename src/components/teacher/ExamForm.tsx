@@ -11,6 +11,7 @@ import { toast } from '@/hooks/use-toast';
 interface ExamFormData {
   subject: string;
   title: string;
+  class: string;
   duration: string;
   totalMarks: string;
   instructions: string;
@@ -26,6 +27,7 @@ export const ExamForm = ({ onCreateExam, onCancel }: ExamFormProps) => {
   const [newExam, setNewExam] = useState<ExamFormData>({
     subject: '',
     title: '',
+    class: '',
     duration: '',
     totalMarks: '',
     instructions: '',
@@ -33,7 +35,7 @@ export const ExamForm = ({ onCreateExam, onCancel }: ExamFormProps) => {
   });
 
   const handleCreateExam = () => {
-    if (!newExam.subject || !newExam.title || !newExam.duration) {
+    if (!newExam.subject || !newExam.title || !newExam.class || !newExam.duration) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields",
@@ -45,6 +47,7 @@ export const ExamForm = ({ onCreateExam, onCancel }: ExamFormProps) => {
     onCreateExam({
       subject: newExam.subject,
       title: newExam.title,
+      class: newExam.class,
       duration: parseInt(newExam.duration),
       questions: 0,
       deadline: newExam.deadline,
@@ -55,12 +58,13 @@ export const ExamForm = ({ onCreateExam, onCancel }: ExamFormProps) => {
 
     toast({
       title: "Exam Created",
-      description: `${newExam.title} has been created successfully and is now available to students`,
+      description: `${newExam.title} has been created successfully for ${newExam.class} and is now available to students`,
     });
 
     setNewExam({
       subject: '',
       title: '',
+      class: '',
       duration: '',
       totalMarks: '',
       instructions: '',
@@ -99,6 +103,25 @@ export const ExamForm = ({ onCreateExam, onCancel }: ExamFormProps) => {
               onChange={(e) => setNewExam({...newExam, title: e.target.value})}
               placeholder="e.g., Mid-Term Examination"
             />
+          </div>
+          <div>
+            <Label htmlFor="class">Class *</Label>
+            <Select value={newExam.class} onValueChange={(value) => setNewExam({...newExam, class: value})}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select class" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="SS1A">SS1A</SelectItem>
+                <SelectItem value="SS1B">SS1B</SelectItem>
+                <SelectItem value="SS1C">SS1C</SelectItem>
+                <SelectItem value="SS2A">SS2A</SelectItem>
+                <SelectItem value="SS2B">SS2B</SelectItem>
+                <SelectItem value="SS2C">SS2C</SelectItem>
+                <SelectItem value="SS3A">SS3A</SelectItem>
+                <SelectItem value="SS3B">SS3B</SelectItem>
+                <SelectItem value="SS3C">SS3C</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label htmlFor="duration">Duration (minutes) *</Label>
