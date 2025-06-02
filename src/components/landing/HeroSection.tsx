@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Award, ArrowRight, Star, CheckCircle, Clock, Shield, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -55,7 +56,7 @@ const HeroSection = () => {
                   <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                 </Button>
               </Link>
-              <Link to="/entrance-exam" className="group">
+              <Link to="/entrance" className="group">
                 <Button size="lg" className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 px-10 py-4 rounded-xl font-semibold text-lg shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300">
                   <CheckCircle className="h-5 w-5 mr-3" />
                   Take Entrance Exam
