@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Layout } from '../components/Layout';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ import { QuestionList } from '../components/teacher/QuestionList';
 import { StudentResults } from '../components/teacher/StudentResults';
 import { Analytics } from '../components/teacher/Analytics';
 import { ExamQuestionEntry } from '../components/teacher/ExamQuestionEntry';
+import { NotificationBell } from '../components/teacher/NotificationBell';
 
 const TeacherDashboard = () => {
   const { exams, questions, addExam, addQuestion, addBulkQuestions, deleteExam, deleteQuestion } = useExam();
@@ -104,6 +106,15 @@ const TeacherDashboard = () => {
   return (
     <Layout title="Teacher Dashboard">
       <div className="px-4 sm:px-0">
+        {/* Dashboard Header with Notifications */}
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Teacher Dashboard</h1>
+            <p className="text-gray-600">Manage your exams, questions, and student results</p>
+          </div>
+          <NotificationBell />
+        </div>
+
         <TeacherStats examCount={exams.length} questionCount={questions.length} />
 
         <Tabs defaultValue="exams" className="space-y-6">
