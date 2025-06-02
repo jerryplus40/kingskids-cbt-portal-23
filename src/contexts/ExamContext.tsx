@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 export interface Question {
@@ -15,6 +14,7 @@ export interface Question {
   optionE: string;
   correctAnswer: 'A' | 'B' | 'C' | 'D' | 'E';
   type: string;
+  examId?: string; // New field to associate questions with specific exams
 }
 
 export interface Exam {
@@ -37,12 +37,16 @@ export interface Exam {
 interface ExamContextType {
   exams: Exam[];
   questions: Question[];
-  addExam: (exam: Omit<Exam, 'id'>) => void;
+  addExam: (exam: Omit<Exam, 'id'>) => Exam;
   addQuestion: (question: Omit<Question, 'id'>) => void;
+  addExamQuestion: (question: Omit<Question, 'id'>) => void;
   addBulkQuestions: (questions: Omit<Question, 'id'>[]) => void;
   deleteExam: (id: string) => void;
   deleteQuestion: (id: string) => void;
+  deleteExamQuestion: (id: string) => void;
   getQuestionsByClass: (className: string) => Question[];
+  getExamQuestions: (examId: string) => Question[];
+  updateExamQuestionCount: (examId: string) => void;
 }
 
 const ExamContext = createContext<ExamContextType | undefined>(undefined);
@@ -135,7 +139,7 @@ export const ExamProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     },
   ]);
 
-  const addExam = (examData: Omit<Exam, 'id'>) => {
+  const addExam = (examData: Omit<Exam, 'id'>): Exam => {
     const newExam: Exam = {
       ...examData,
       id: Date.now().toString(),
@@ -143,9 +147,11 @@ export const ExamProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       attempts: 0,
       maxAttempts: 1,
       students: 25,
-      submitted: 0
+      submitted: 0,
+      questions: 0 // Start with 0 questions
     };
     setExams(prev => [...prev, newExam]);
+    return newExam;
   };
 
   const addQuestion = (questionData: Omit<Question, 'id'>) => {
@@ -155,6 +161,20 @@ export const ExamProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       type: 'Multiple Choice'
     };
     setQuestions(prev => [...prev, newQuestion]);
+  };
+
+  const addExamQuestion = (questionData: Omit<Question, 'id'>) => {
+    const newQuestion: Question = {
+      ...questionData,
+      id: `${Date.now()}-${Math.random()}`,
+      type: 'Multiple Choice'
+    };
+    setQuestions(prev => [...prev, newQuestion]);
+    
+    // Update exam question count
+    if (questionData.examId) {
+      updateExamQuestionCount(questionData.examId);
+    }
   };
 
   const addBulkQuestions = (questionsData: Omit<Question, 'id'>[]) => {
@@ -168,14 +188,40 @@ export const ExamProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const deleteExam = (id: string) => {
     setExams(prev => prev.filter(exam => exam.id !== id));
+    // Also delete all questions associated with this exam
+    setQuestions(prev => prev.filter(question => question.examId !== id));
   };
 
   const deleteQuestion = (id: string) => {
     setQuestions(prev => prev.filter(question => question.id !== id));
   };
 
+  const deleteExamQuestion = (id: string) => {
+    const questionToDelete = questions.find(q => q.id === id);
+    setQuestions(prev => prev.filter(question => question.id !== id));
+    
+    // Update exam question count
+    if (questionToDelete?.examId) {
+      updateExamQuestionCount(questionToDelete.examId);
+    }
+  };
+
   const getQuestionsByClass = (className: string) => {
     return questions.filter(question => question.class === className);
+  };
+
+  const getExamQuestions = (examId: string) => {
+    return questions.filter(question => question.examId === examId);
+  };
+
+  const updateExamQuestionCount = (examId: string) => {
+    setExams(prev => prev.map(exam => {
+      if (exam.id === examId) {
+        const examQuestions = questions.filter(q => q.examId === examId);
+        return { ...exam, questions: examQuestions.length };
+      }
+      return exam;
+    }));
   };
 
   return (
@@ -184,10 +230,14 @@ export const ExamProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       questions,
       addExam,
       addQuestion,
+      addExamQuestion,
       addBulkQuestions,
       deleteExam,
       deleteQuestion,
-      getQuestionsByClass
+      deleteExamQuestion,
+      getQuestionsByClass,
+      getExamQuestions,
+      updateExamQuestionCount
     }}>
       {children}
     </ExamContext.Provider>

@@ -13,16 +13,22 @@ import { ExamList } from '../components/teacher/ExamList';
 import { QuestionList } from '../components/teacher/QuestionList';
 import { StudentResults } from '../components/teacher/StudentResults';
 import { Analytics } from '../components/teacher/Analytics';
+import { ExamQuestionEntry } from '../components/teacher/ExamQuestionEntry';
 
 const TeacherDashboard = () => {
   const { exams, questions, addExam, addQuestion, addBulkQuestions, deleteExam, deleteQuestion } = useExam();
   const [showCreateExam, setShowCreateExam] = useState(false);
   const [showCreateQuestion, setShowCreateQuestion] = useState(false);
   const [showBulkQuestions, setShowBulkQuestions] = useState(false);
+  const [currentExamId, setCurrentExamId] = useState<string | null>(null);
+  const [showExamQuestionEntry, setShowExamQuestionEntry] = useState(false);
 
   const handleCreateExam = (examData: any) => {
-    addExam(examData);
+    const newExam = addExam(examData);
     setShowCreateExam(false);
+    // Redirect to question entry for the newly created exam
+    setCurrentExamId(newExam.id);
+    setShowExamQuestionEntry(true);
   };
 
   const handleCreateQuestion = (questionData: any) => {
@@ -34,6 +40,27 @@ const TeacherDashboard = () => {
     addBulkQuestions(questionsData);
     setShowBulkQuestions(false);
   };
+
+  const handleExamQuestionEntryClose = () => {
+    setShowExamQuestionEntry(false);
+    setCurrentExamId(null);
+  };
+
+  const currentExam = currentExamId ? exams.find(exam => exam.id === currentExamId) : null;
+
+  // If showing exam question entry, show that component
+  if (showExamQuestionEntry && currentExam) {
+    return (
+      <Layout title="Add Questions to Exam">
+        <div className="px-4 sm:px-0">
+          <ExamQuestionEntry 
+            exam={currentExam}
+            onClose={handleExamQuestionEntryClose}
+          />
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout title="Teacher Dashboard">

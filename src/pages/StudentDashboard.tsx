@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Layout } from '../components/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,8 +42,12 @@ const StudentDashboard = () => {
     rank: 3
   };
 
-  const startExam = (examId: string) => {
-    navigate(`/exam/${examId}`);
+  const startExam = (examId: string, examTitle: string) => {
+    console.log(`Starting exam: ${examTitle} (ID: ${examId})`);
+    // Navigate to the specific exam without redirecting to other exams
+    navigate(`/exam/${examId}`, { 
+      state: { examTitle } // Pass exam title to ensure we're accessing the right exam
+    });
   };
 
   const getStatusBadge = (status: string, attempts: number = 0, maxAttempts: number = 1) => {
@@ -122,7 +127,7 @@ const StudentDashboard = () => {
               <CardHeader>
                 <CardTitle>Available Exams</CardTitle>
                 <CardDescription>
-                  Click "Start Exam" to begin taking your exams. New exams appear here when your teachers create them.
+                  Click "Start Exam" to begin taking your exams. Each exam can be selected and accessed individually.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -135,11 +140,12 @@ const StudentDashboard = () => {
                     </div>
                   ) : (
                     availableExams.map((exam) => (
-                      <div key={exam.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div key={exam.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
                         <div className="flex-1">
                           <div className="flex items-center space-x-3 mb-2">
                             <h3 className="font-semibold">{exam.title}</h3>
                             {getStatusBadge(exam.status, exam.attempts, exam.maxAttempts)}
+                            <Badge variant="outline">{exam.subject}</Badge>
                           </div>
                           <div className="flex items-center space-x-6 text-sm text-gray-600">
                             <div className="flex items-center">
@@ -150,20 +156,31 @@ const StudentDashboard = () => {
                               <FileText className="h-4 w-4 mr-1" />
                               {exam.questions} questions
                             </div>
-                            <div className="flex items-center">
-                              <Calendar className="h-4 w-4 mr-1" />
-                              Due: {exam.deadline || 'No deadline'}
-                            </div>
+                            {exam.deadline && (
+                              <div className="flex items-center">
+                                <Calendar className="h-4 w-4 mr-1" />
+                                Due: {exam.deadline}
+                              </div>
+                            )}
+                            {exam.totalMarks && (
+                              <div className="flex items-center">
+                                <Award className="h-4 w-4 mr-1" />
+                                {exam.totalMarks} marks
+                              </div>
+                            )}
                           </div>
+                          {exam.instructions && (
+                            <p className="text-sm text-gray-500 mt-2 italic">{exam.instructions}</p>
+                          )}
                         </div>
                         <div className="ml-4">
                           <Button 
-                            onClick={() => startExam(exam.id)}
-                            disabled={exam.status === 'expired' || (exam.attempts || 0) >= (exam.maxAttempts || 1)}
-                            className="bg-blue-600 hover:bg-blue-700"
+                            onClick={() => startExam(exam.id, exam.title)}
+                            disabled={exam.status === 'expired' || (exam.attempts || 0) >= (exam.maxAttempts || 1) || exam.questions === 0}
+                            className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400"
                           >
                             <Play className="h-4 w-4 mr-2" />
-                            Start Exam
+                            {exam.questions === 0 ? 'No Questions' : 'Start Exam'}
                           </Button>
                         </div>
                       </div>
