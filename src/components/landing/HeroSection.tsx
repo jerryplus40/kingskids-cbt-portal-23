@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Award, ArrowRight, Star, CheckCircle, Clock, Shield, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -26,7 +27,7 @@ const HeroSection = () => {
       <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 via-transparent to-transparent"></div>
       
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-16 items-start">
           <div className="space-y-8 animate-fade-in">
             <div className="space-y-6">
               <div className="inline-flex items-center bg-white/10 backdrop-blur-md text-white px-6 py-3 rounded-full text-sm font-medium border border-white/20 shadow-lg hover:bg-white/20 transition-all duration-300">
@@ -48,24 +49,63 @@ const HeroSection = () => {
               </p>
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-6">
-              <Link to="/login" className="group">
-                <Button size="lg" className="bg-white text-blue-900 hover:bg-gray-100 px-10 py-4 rounded-xl font-semibold text-lg shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 group-hover:translate-y-1">
-                  Access Portal
-                  <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
-                </Button>
-              </Link>
-              <Link to="/entrance-exam" className="group">
-                <Button size="lg" className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 px-10 py-4 rounded-xl font-semibold text-lg shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300">
-                  <CheckCircle className="h-5 w-5 mr-3" />
-                  Take Entrance Exam
-                  <Zap className="h-4 w-4 ml-2" />
-                </Button>
-              </Link>
+            <div className="flex flex-col sm:flex-row gap-6 items-start">
+              <div className="flex flex-col gap-6">
+                <Link to="/login" className="group">
+                  <Button size="lg" className="bg-white text-blue-900 hover:bg-gray-100 px-10 py-4 rounded-xl font-semibold text-lg shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 group-hover:translate-y-1">
+                    Access Portal
+                    <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+                  </Button>
+                </Link>
+                <Link to="/entrance-exam" className="group">
+                  <Button size="lg" className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 px-10 py-4 rounded-xl font-semibold text-lg shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300">
+                    <CheckCircle className="h-5 w-5 mr-3" />
+                    Take Entrance Exam
+                    <Zap className="h-4 w-4 ml-2" />
+                  </Button>
+                </Link>
+              </div>
+              
+              {/* Features Panel - Aligned with buttons */}
+              <div className="relative ml-8 hidden lg:block">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-3xl blur-3xl"></div>
+                <div className="relative bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 shadow-2xl">
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="bg-green-500 p-2 rounded-full animate-pulse">
+                        <CheckCircle className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-white font-semibold text-sm">Secure Testing Environment</p>
+                        <p className="text-white/70 text-xs">Advanced proctoring technology</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="bg-blue-500 p-2 rounded-full animate-pulse delay-300">
+                        <Clock className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-white font-semibold text-sm">Real-time Results</p>
+                        <p className="text-white/70 text-xs">Instant feedback and analytics</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="bg-purple-500 p-2 rounded-full animate-pulse delay-500">
+                        <Shield className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-white font-semibold text-sm">Data Protection</p>
+                        <p className="text-white/70 text-xs">Enterprise-grade security</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           
-          <div className="relative hidden lg:block">
+          {/* Mobile Features Panel */}
+          <div className="relative lg:hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-3xl blur-3xl"></div>
             <div className="relative bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 shadow-2xl">
               <div className="space-y-6">
