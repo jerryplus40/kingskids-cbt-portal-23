@@ -26,7 +26,7 @@ const ExamInterface = () => {
   const [timeLeft, setTimeLeft] = useState(5400); // 90 minutes in seconds
   const [flaggedQuestions, setFlaggedQuestions] = useState<Set<number>>(new Set());
 
-  // Mock exam data
+  // Mock exam data with 5 options
   const examData = {
     subject: 'Mathematics',
     duration: 90,
@@ -34,41 +34,41 @@ const ExamInterface = () => {
       {
         id: 1,
         question: "What is the value of x in the equation 2x + 5 = 13?",
-        options: ["x = 3", "x = 4", "x = 5", "x = 6"],
+        options: ["x = 3", "x = 4", "x = 5", "x = 6", "x = 7"],
         correct: 1
       },
       {
         id: 2,
         question: "Find the area of a circle with radius 7 cm (use π = 22/7)",
-        options: ["154 cm²", "144 cm²", "164 cm²", "174 cm²"],
+        options: ["154 cm²", "144 cm²", "164 cm²", "174 cm²", "184 cm²"],
         correct: 0
       },
       {
         id: 3,
         question: "Simplify: (3x² + 2x - 1) + (x² - 3x + 4)",
-        options: ["4x² - x + 3", "4x² + x + 3", "2x² - x + 3", "4x² - x - 3"],
+        options: ["4x² - x + 3", "4x² + x + 3", "2x² - x + 3", "4x² - x - 3", "3x² - x + 3"],
         correct: 0
       },
       {
         id: 4,
         question: "What is the next term in the sequence: 2, 6, 18, 54, ?",
-        options: ["108", "162", "216", "270"],
+        options: ["108", "162", "216", "270", "324"],
         correct: 1
       },
       {
         id: 5,
         question: "If sin θ = 3/5, what is cos θ?",
-        options: ["4/5", "3/4", "5/4", "5/3"],
+        options: ["4/5", "3/4", "5/4", "5/3", "2/5"],
         correct: 0
       }
     ]
   };
 
-  // Keyboard shortcuts
+  // Keyboard shortcuts - updated to include E
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       // Prevent default behavior for our shortcuts
-      if (['a', 'b', 'c', 'd', 'ArrowLeft', 'ArrowRight'].includes(event.key.toLowerCase())) {
+      if (['a', 'b', 'c', 'd', 'e', 'ArrowLeft', 'ArrowRight'].includes(event.key.toLowerCase())) {
         event.preventDefault();
       }
 
@@ -84,6 +84,9 @@ const ExamInterface = () => {
           break;
         case 'd':
           handleAnswerChange('3');
+          break;
+        case 'e':
+          handleAnswerChange('4');
           break;
         case 'arrowleft':
           if (currentQuestion > 0) {
@@ -282,7 +285,7 @@ const ExamInterface = () => {
         <Card className="mt-6">
           <CardContent className="p-4">
             <div className="text-sm text-gray-600">
-              <strong>Keyboard Shortcuts:</strong> Press A, B, C, D to select answers • ← → arrow keys to navigate • F to flag question
+              <strong>Keyboard Shortcuts:</strong> Press A, B, C, D, E to select answers • ← → arrow keys to navigate • F to flag question
             </div>
           </CardContent>
         </Card>
