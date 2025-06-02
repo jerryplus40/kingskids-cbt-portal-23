@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Layout } from '../components/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -106,7 +107,8 @@ const TeacherDashboard = () => {
       questions: 0,
       deadline: newExam.deadline,
       totalMarks: newExam.totalMarks,
-      instructions: newExam.instructions
+      instructions: newExam.instructions,
+      status: 'available'
     });
 
     toast({
@@ -146,7 +148,8 @@ const TeacherDashboard = () => {
       optionC: newQuestion.optionC,
       optionD: newQuestion.optionD,
       optionE: newQuestion.optionE,
-      correctAnswer: newQuestion.correctAnswer as 'A' | 'B' | 'C' | 'D' | 'E'
+      correctAnswer: newQuestion.correctAnswer as 'A' | 'B' | 'C' | 'D' | 'E',
+      type: 'Multiple Choice'
     });
 
     toast({
