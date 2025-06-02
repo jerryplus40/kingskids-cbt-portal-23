@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Layout } from '../components/Layout';
 import { Button } from '@/components/ui/button';
@@ -29,9 +28,16 @@ const TeacherDashboard = () => {
   const handleCreateExam = (examData: any) => {
     const newExam = addExam(examData);
     setShowCreateExam(false);
-    // Redirect to question entry for the newly created exam
-    setCurrentExamId(newExam.id);
-    setShowExamQuestionEntry(true);
+    
+    // No need to redirect to question entry anymore since questions are added during exam creation
+    if (examData.examQuestions && examData.examQuestions.length > 0) {
+      // Exam created with questions
+      return;
+    }
+    
+    // If no questions were added, optionally redirect to question entry
+    // setCurrentExamId(newExam.id);
+    // setShowExamQuestionEntry(true);
   };
 
   const handleCreateQuestion = (questionData: any) => {
@@ -114,7 +120,7 @@ const TeacherDashboard = () => {
                 <h2 className="text-xl font-semibold">Exam Management</h2>
                 <Button onClick={() => setShowCreateExam(true)} className="bg-blue-600 hover:bg-blue-700">
                   <Plus className="h-4 w-4 mr-2" />
-                  Create Exam
+                  Create Exam with Questions
                 </Button>
               </div>
 

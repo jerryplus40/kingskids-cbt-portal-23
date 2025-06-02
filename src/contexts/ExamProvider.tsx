@@ -8,7 +8,7 @@ export const ExamProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [exams, setExams] = useState<Exam[]>(initialExams);
   const [questions, setQuestions] = useState<Question[]>(initialQuestions);
 
-  const addExam = (examData: Omit<Exam, 'id'>): Exam => {
+  const addExam = (examData: any): Exam => {
     const newExam: Exam = {
       ...examData,
       id: Date.now().toString(),
@@ -16,9 +16,20 @@ export const ExamProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       attempts: 0,
       maxAttempts: 1,
       students: 25,
-      submitted: 0,
-      questions: 0
+      submitted: 0
     };
+
+    // If exam has questions included, add them to the questions array
+    if (examData.examQuestions && examData.examQuestions.length > 0) {
+      const newQuestions: Question[] = examData.examQuestions.map((questionData: any, index: number) => ({
+        ...questionData,
+        id: `${newExam.id}-${index}`,
+        examId: newExam.id
+      }));
+      setQuestions(prev => [...prev, ...newQuestions]);
+      newExam.questions = newQuestions.length;
+    }
+
     setExams(prev => [...prev, newExam]);
     return newExam;
   };
