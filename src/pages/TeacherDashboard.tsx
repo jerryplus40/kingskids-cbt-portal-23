@@ -3,20 +3,22 @@ import { useState } from 'react';
 import { Layout } from '../components/Layout';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus } from 'lucide-react';
+import { Plus, List } from 'lucide-react';
 import { useExam } from '../contexts/ExamContext';
 import { TeacherStats } from '../components/teacher/TeacherStats';
 import { ExamForm } from '../components/teacher/ExamForm';
 import { QuestionForm } from '../components/teacher/QuestionForm';
+import { BulkQuestionForm } from '../components/teacher/BulkQuestionForm';
 import { ExamList } from '../components/teacher/ExamList';
 import { QuestionList } from '../components/teacher/QuestionList';
 import { StudentResults } from '../components/teacher/StudentResults';
 import { Analytics } from '../components/teacher/Analytics';
 
 const TeacherDashboard = () => {
-  const { exams, questions, addExam, addQuestion, deleteExam, deleteQuestion } = useExam();
+  const { exams, questions, addExam, addQuestion, addBulkQuestions, deleteExam, deleteQuestion } = useExam();
   const [showCreateExam, setShowCreateExam] = useState(false);
   const [showCreateQuestion, setShowCreateQuestion] = useState(false);
+  const [showBulkQuestions, setShowBulkQuestions] = useState(false);
 
   const handleCreateExam = (examData: any) => {
     addExam(examData);
@@ -26,6 +28,11 @@ const TeacherDashboard = () => {
   const handleCreateQuestion = (questionData: any) => {
     addQuestion(questionData);
     setShowCreateQuestion(false);
+  };
+
+  const handleCreateBulkQuestions = (questionsData: any[]) => {
+    addBulkQuestions(questionsData);
+    setShowBulkQuestions(false);
   };
 
   return (
@@ -66,11 +73,24 @@ const TeacherDashboard = () => {
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold">Question Bank</h2>
-                <Button onClick={() => setShowCreateQuestion(true)} className="bg-blue-600 hover:bg-blue-700">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Question
-                </Button>
+                <div className="flex space-x-2">
+                  <Button onClick={() => setShowBulkQuestions(true)} className="bg-green-600 hover:bg-green-700">
+                    <List className="h-4 w-4 mr-2" />
+                    Add Questions 1-60
+                  </Button>
+                  <Button onClick={() => setShowCreateQuestion(true)} className="bg-blue-600 hover:bg-blue-700">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Single Question
+                  </Button>
+                </div>
               </div>
+
+              {showBulkQuestions && (
+                <BulkQuestionForm 
+                  onCreateBulkQuestions={handleCreateBulkQuestions}
+                  onCancel={() => setShowBulkQuestions(false)}
+                />
+              )}
 
               {showCreateQuestion && (
                 <QuestionForm 

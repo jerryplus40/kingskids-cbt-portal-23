@@ -3,8 +3,10 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 export interface Question {
   id: string;
+  questionNumber: number;
   question: string;
   subject: string;
+  class: string;
   difficulty: 'Easy' | 'Medium' | 'Hard';
   optionA: string;
   optionB: string;
@@ -37,8 +39,10 @@ interface ExamContextType {
   questions: Question[];
   addExam: (exam: Omit<Exam, 'id'>) => void;
   addQuestion: (question: Omit<Question, 'id'>) => void;
+  addBulkQuestions: (questions: Omit<Question, 'id'>[]) => void;
   deleteExam: (id: string) => void;
   deleteQuestion: (id: string) => void;
+  getQuestionsByClass: (className: string) => Question[];
 }
 
 const ExamContext = createContext<ExamContextType | undefined>(undefined);
@@ -86,8 +90,10 @@ export const ExamProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [questions, setQuestions] = useState<Question[]>([
     { 
       id: '1', 
+      questionNumber: 1,
       question: 'What is 2 + 2?', 
       subject: 'Mathematics', 
+      class: 'SS1A',
       difficulty: 'Easy', 
       type: 'Multiple Choice',
       optionA: '3',
@@ -99,8 +105,10 @@ export const ExamProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     },
     { 
       id: '2', 
+      questionNumber: 2,
       question: 'Solve for x: 2x + 5 = 13', 
       subject: 'Mathematics', 
+      class: 'SS1A',
       difficulty: 'Medium', 
       type: 'Multiple Choice',
       optionA: 'x = 3',
@@ -112,8 +120,10 @@ export const ExamProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     },
     { 
       id: '3', 
+      questionNumber: 1,
       question: 'Find the derivative of x²', 
       subject: 'Mathematics', 
+      class: 'SS1B',
       difficulty: 'Hard', 
       type: 'Multiple Choice',
       optionA: '2x',
@@ -147,6 +157,15 @@ export const ExamProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setQuestions(prev => [...prev, newQuestion]);
   };
 
+  const addBulkQuestions = (questionsData: Omit<Question, 'id'>[]) => {
+    const newQuestions: Question[] = questionsData.map((questionData, index) => ({
+      ...questionData,
+      id: `${Date.now()}-${index}`,
+      type: 'Multiple Choice'
+    }));
+    setQuestions(prev => [...prev, ...newQuestions]);
+  };
+
   const deleteExam = (id: string) => {
     setExams(prev => prev.filter(exam => exam.id !== id));
   };
@@ -155,14 +174,20 @@ export const ExamProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setQuestions(prev => prev.filter(question => question.id !== id));
   };
 
+  const getQuestionsByClass = (className: string) => {
+    return questions.filter(question => question.class === className);
+  };
+
   return (
     <ExamContext.Provider value={{
       exams,
       questions,
       addExam,
       addQuestion,
+      addBulkQuestions,
       deleteExam,
-      deleteQuestion
+      deleteQuestion,
+      getQuestionsByClass
     }}>
       {children}
     </ExamContext.Provider>

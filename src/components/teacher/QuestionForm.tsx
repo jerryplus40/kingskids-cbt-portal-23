@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,8 +9,10 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from '@/hooks/use-toast';
 
 interface QuestionFormData {
+  questionNumber: number;
   question: string;
   subject: string;
+  class: string;
   difficulty: string;
   optionA: string;
   optionB: string;
@@ -28,8 +29,10 @@ interface QuestionFormProps {
 
 export const QuestionForm = ({ onCreateQuestion, onCancel }: QuestionFormProps) => {
   const [newQuestion, setNewQuestion] = useState<QuestionFormData>({
+    questionNumber: 1,
     question: '',
     subject: '',
+    class: '',
     difficulty: '',
     optionA: '',
     optionB: '',
@@ -40,7 +43,7 @@ export const QuestionForm = ({ onCreateQuestion, onCancel }: QuestionFormProps) 
   });
 
   const handleCreateQuestion = () => {
-    if (!newQuestion.question || !newQuestion.subject || !newQuestion.difficulty || 
+    if (!newQuestion.question || !newQuestion.subject || !newQuestion.class || !newQuestion.difficulty || 
         !newQuestion.optionA || !newQuestion.optionB || !newQuestion.optionC || 
         !newQuestion.optionD || !newQuestion.optionE || !newQuestion.correctAnswer) {
       toast({
@@ -52,8 +55,10 @@ export const QuestionForm = ({ onCreateQuestion, onCancel }: QuestionFormProps) 
     }
 
     onCreateQuestion({
+      questionNumber: newQuestion.questionNumber,
       question: newQuestion.question,
       subject: newQuestion.subject,
+      class: newQuestion.class,
       difficulty: newQuestion.difficulty as 'Easy' | 'Medium' | 'Hard',
       optionA: newQuestion.optionA,
       optionB: newQuestion.optionB,
@@ -70,8 +75,10 @@ export const QuestionForm = ({ onCreateQuestion, onCancel }: QuestionFormProps) 
     });
 
     setNewQuestion({
+      questionNumber: 1,
       question: '',
       subject: '',
+      class: '',
       difficulty: '',
       optionA: '',
       optionB: '',
@@ -90,7 +97,18 @@ export const QuestionForm = ({ onCreateQuestion, onCancel }: QuestionFormProps) 
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Label htmlFor="questionNumber">Question Number *</Label>
+              <Input
+                id="questionNumber"
+                type="number"
+                min="1"
+                max="60"
+                value={newQuestion.questionNumber}
+                onChange={(e) => setNewQuestion({...newQuestion, questionNumber: parseInt(e.target.value) || 1})}
+              />
+            </div>
             <div>
               <Label htmlFor="questionSubject">Subject *</Label>
               <Select value={newQuestion.subject} onValueChange={(value) => setNewQuestion({...newQuestion, subject: value})}>
@@ -107,18 +125,35 @@ export const QuestionForm = ({ onCreateQuestion, onCancel }: QuestionFormProps) 
               </Select>
             </div>
             <div>
-              <Label htmlFor="difficulty">Difficulty *</Label>
-              <Select value={newQuestion.difficulty} onValueChange={(value) => setNewQuestion({...newQuestion, difficulty: value})}>
+              <Label htmlFor="questionClass">Class *</Label>
+              <Select value={newQuestion.class} onValueChange={(value) => setNewQuestion({...newQuestion, class: value})}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select difficulty" />
+                  <SelectValue placeholder="Select class" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Easy">Easy</SelectItem>
-                  <SelectItem value="Medium">Medium</SelectItem>
-                  <SelectItem value="Hard">Hard</SelectItem>
+                  <SelectItem value="SS1A">SS1A</SelectItem>
+                  <SelectItem value="SS1B">SS1B</SelectItem>
+                  <SelectItem value="SS2A">SS2A</SelectItem>
+                  <SelectItem value="SS2B">SS2B</SelectItem>
+                  <SelectItem value="SS3A">SS3A</SelectItem>
+                  <SelectItem value="SS3B">SS3B</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div>
+            <Label htmlFor="difficulty">Difficulty *</Label>
+            <Select value={newQuestion.difficulty} onValueChange={(value) => setNewQuestion({...newQuestion, difficulty: value})}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select difficulty" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Easy">Easy</SelectItem>
+                <SelectItem value="Medium">Medium</SelectItem>
+                <SelectItem value="Hard">Hard</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           
           <div>
