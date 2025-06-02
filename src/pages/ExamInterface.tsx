@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -17,76 +17,75 @@ import {
   Volume2
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { useExam } from '../contexts/ExamContext';
 
 const ExamInterface = () => {
   const { examId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { exams, getExamQuestions } = useExam();
+  
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
-  const [timeLeft, setTimeLeft] = useState(5400); // 90 minutes in seconds
+  const [timeLeft, setTimeLeft] = useState(5400); // Default 90 minutes
   const [flaggedQuestions, setFlaggedQuestions] = useState<Set<number>>(new Set());
 
-  // Mock exam data with 5 options
-  const examData = {
-    subject: 'Mathematics',
-    duration: 90,
-    questions: [
-      {
-        id: 1,
-        question: "What is the value of x in the equation 2x + 5 = 13?",
-        options: ["x = 3", "x = 4", "x = 5", "x = 6", "x = 7"],
-        correct: 1
-      },
-      {
-        id: 2,
-        question: "Find the area of a circle with radius 7 cm (use π = 22/7)",
-        options: ["154 cm²", "144 cm²", "164 cm²", "174 cm²", "184 cm²"],
-        correct: 0
-      },
-      {
-        id: 3,
-        question: "Simplify: (3x² + 2x - 1) + (x² - 3x + 4)",
-        options: ["4x² - x + 3", "4x² + x + 3", "2x² - x + 3", "4x² - x - 3", "3x² - x + 3"],
-        correct: 0
-      },
-      {
-        id: 4,
-        question: "What is the next term in the sequence: 2, 6, 18, 54, ?",
-        options: ["108", "162", "216", "270", "324"],
-        correct: 1
-      },
-      {
-        id: 5,
-        question: "If sin θ = 3/5, what is cos θ?",
-        options: ["4/5", "3/4", "5/4", "5/3", "2/5"],
-        correct: 0
-      }
-    ]
-  };
+  // Get the actual exam and its questions
+  const exam = exams.find(e => e.id === examId);
+  const examQuestions = examId ? getExamQuestions(examId) : [];
 
-  // Keyboard shortcuts - updated to include E
+  // Set duration based on actual exam data
+  useEffect(() => {
+    if (exam && exam.duration) {
+      setTimeLeft(exam.duration * 60); // Convert minutes to seconds
+    }
+  }, [exam]);
+
+  // Redirect if exam not found or has no questions
+  useEffect(() => {
+    if (!exam) {
+      toast({
+        title: "Exam Not Found",
+        description: "The requested exam could not be found.",
+        variant: "destructive"
+      });
+      navigate('/student');
+      return;
+    }
+
+    if (examQuestions.length === 0) {
+      toast({
+        title: "No Questions Available",
+        description: "This exam has no questions available.",
+        variant: "destructive"
+      });
+      navigate('/student');
+      return;
+    }
+  }, [exam, examQuestions, navigate]);
+
+  // Keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      // Prevent default behavior for our shortcuts
       if (['a', 'b', 'c', 'd', 'e', 'ArrowLeft', 'ArrowRight'].includes(event.key.toLowerCase())) {
         event.preventDefault();
       }
 
       switch (event.key.toLowerCase()) {
         case 'a':
-          handleAnswerChange('0');
+          handleAnswerChange('A');
           break;
         case 'b':
-          handleAnswerChange('1');
+          handleAnswerChange('B');
           break;
         case 'c':
-          handleAnswerChange('2');
+          handleAnswerChange('C');
           break;
         case 'd':
-          handleAnswerChange('3');
+          handleAnswerChange('D');
           break;
         case 'e':
-          handleAnswerChange('4');
+          handleAnswerChange('E');
           break;
         case 'arrowleft':
           if (currentQuestion > 0) {
@@ -94,7 +93,7 @@ const ExamInterface = () => {
           }
           break;
         case 'arrowright':
-          if (currentQuestion < examData.questions.length - 1) {
+          if (currentQuestion < examQuestions.length - 1) {
             setCurrentQuestion(currentQuestion + 1);
           }
           break;
@@ -106,7 +105,7 @@ const ExamInterface = () => {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [currentQuestion, examData.questions.length]);
+  }, [currentQuestion, examQuestions.length]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -149,21 +148,30 @@ const ExamInterface = () => {
   };
 
   const handleSubmitExam = () => {
-    const score = examData.questions.reduce((total, question, index) => {
-      const userAnswer = parseInt(answers[index]);
-      return total + (userAnswer === question.correct ? 1 : 0);
+    const score = examQuestions.reduce((total, question, index) => {
+      const userAnswer = answers[index];
+      return total + (userAnswer === question.correctAnswer ? 1 : 0);
     }, 0);
 
     toast({
       title: "Exam Submitted",
-      description: `You scored ${score}/${examData.questions.length}`,
+      description: `You scored ${score}/${examQuestions.length}`,
     });
 
     navigate('/student');
   };
 
-  const progress = ((currentQuestion + 1) / examData.questions.length) * 100;
-  const currentQ = examData.questions[currentQuestion];
+  // Return loading state if exam or questions are not available
+  if (!exam || examQuestions.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  const progress = ((currentQuestion + 1) / examQuestions.length) * 100;
+  const currentQ = examQuestions[currentQuestion];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -172,10 +180,11 @@ const ExamInterface = () => {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-semibold">{examData.subject} Examination</h1>
+              <h1 className="text-xl font-semibold">{exam.title}</h1>
+              <Badge variant="secondary">{exam.subject}</Badge>
               <div className="flex items-center space-x-2">
                 <Volume2 className="h-5 w-5 text-gray-600" />
-                <span className="text-lg font-bold">Question {currentQuestion + 1}/{examData.questions.length}</span>
+                <span className="text-lg font-bold">Question {currentQuestion + 1}/{examQuestions.length}</span>
               </div>
             </div>
             
@@ -206,17 +215,51 @@ const ExamInterface = () => {
                 onValueChange={handleAnswerChange}
                 className="space-y-4"
               >
-                {currentQ.options.map((option, index) => (
-                  <div key={index} className="flex items-center space-x-4 p-4 rounded-lg border-2 hover:bg-blue-50 hover:border-blue-200 transition-all">
-                    <RadioGroupItem value={index.toString()} id={`option-${index}`} className="h-5 w-5" />
-                    <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer text-lg">
-                      <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-800 font-bold rounded-full mr-4">
-                        {String.fromCharCode(65 + index)}
-                      </span>
-                      {option}
-                    </Label>
-                  </div>
-                ))}
+                <div className="flex items-center space-x-4 p-4 rounded-lg border-2 hover:bg-blue-50 hover:border-blue-200 transition-all">
+                  <RadioGroupItem value="A" id="option-A" className="h-5 w-5" />
+                  <Label htmlFor="option-A" className="flex-1 cursor-pointer text-lg">
+                    <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-800 font-bold rounded-full mr-4">
+                      A
+                    </span>
+                    {currentQ.optionA}
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-4 p-4 rounded-lg border-2 hover:bg-blue-50 hover:border-blue-200 transition-all">
+                  <RadioGroupItem value="B" id="option-B" className="h-5 w-5" />
+                  <Label htmlFor="option-B" className="flex-1 cursor-pointer text-lg">
+                    <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-800 font-bold rounded-full mr-4">
+                      B
+                    </span>
+                    {currentQ.optionB}
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-4 p-4 rounded-lg border-2 hover:bg-blue-50 hover:border-blue-200 transition-all">
+                  <RadioGroupItem value="C" id="option-C" className="h-5 w-5" />
+                  <Label htmlFor="option-C" className="flex-1 cursor-pointer text-lg">
+                    <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-800 font-bold rounded-full mr-4">
+                      C
+                    </span>
+                    {currentQ.optionC}
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-4 p-4 rounded-lg border-2 hover:bg-blue-50 hover:border-blue-200 transition-all">
+                  <RadioGroupItem value="D" id="option-D" className="h-5 w-5" />
+                  <Label htmlFor="option-D" className="flex-1 cursor-pointer text-lg">
+                    <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-800 font-bold rounded-full mr-4">
+                      D
+                    </span>
+                    {currentQ.optionD}
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-4 p-4 rounded-lg border-2 hover:bg-blue-50 hover:border-blue-200 transition-all">
+                  <RadioGroupItem value="E" id="option-E" className="h-5 w-5" />
+                  <Label htmlFor="option-E" className="flex-1 cursor-pointer text-lg">
+                    <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-800 font-bold rounded-full mr-4">
+                      E
+                    </span>
+                    {currentQ.optionE}
+                  </Label>
+                </div>
               </RadioGroup>
             </div>
           </CardContent>
@@ -236,8 +279,8 @@ const ExamInterface = () => {
             </Button>
             
             <Button
-              onClick={() => setCurrentQuestion(Math.min(examData.questions.length - 1, currentQuestion + 1))}
-              disabled={currentQuestion === examData.questions.length - 1}
+              onClick={() => setCurrentQuestion(Math.min(examQuestions.length - 1, currentQuestion + 1))}
+              disabled={currentQuestion === examQuestions.length - 1}
               className="bg-blue-500 hover:bg-blue-600 px-6"
             >
               Next
@@ -246,7 +289,7 @@ const ExamInterface = () => {
           </div>
 
           <div className="text-lg font-semibold text-gray-700">
-            Attempted: {Object.keys(answers).length}/{examData.questions.length}
+            Attempted: {Object.keys(answers).length}/{examQuestions.length}
           </div>
         </div>
 
@@ -254,7 +297,7 @@ const ExamInterface = () => {
         <Card>
           <CardContent className="p-6">
             <div className="grid grid-cols-10 gap-3">
-              {examData.questions.map((_, index) => {
+              {examQuestions.map((_, index) => {
                 const isAnswered = answers[index] !== undefined;
                 const isFlagged = flaggedQuestions.has(index);
                 const isCurrent = index === currentQuestion;
