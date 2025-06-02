@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Award, ArrowRight, Star, CheckCircle, Clock, Shield, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -6,14 +5,14 @@ import { Link } from 'react-router-dom';
 const HeroSection = () => {
   return (
     <section className="relative overflow-hidden min-h-screen flex items-center bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
-      {/* Background Image with Fade Effect */}
+      {/* Background Image with Better Visibility */}
       <div className="absolute inset-0">
         <img 
           src="/lovable-uploads/a37a54fd-432e-443f-8770-fd2b6f7f2605.png" 
           alt="Students using computers for testing"
-          className="w-full h-full object-cover opacity-20 mix-blend-overlay"
+          className="w-full h-full object-cover opacity-40"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-blue-900/70 to-indigo-900/80"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/60 via-slate-900/70 to-indigo-900/80"></div>
       </div>
       
       {/* Animated Background Elements */}
