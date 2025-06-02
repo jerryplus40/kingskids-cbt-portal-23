@@ -8,6 +8,16 @@ const LandingPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       {/* Hero Section with Dark Blue Gradient Background */}
       <section className="relative overflow-hidden min-h-screen flex items-center bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+        {/* Background Image with Fade Effect */}
+        <div className="absolute inset-0">
+          <img 
+            src="/lovable-uploads/a37a54fd-432e-443f-8770-fd2b6f7f2605.png" 
+            alt="Students using computers for testing"
+            className="w-full h-full object-cover opacity-20 mix-blend-overlay"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-blue-900/70 to-indigo-900/80"></div>
+        </div>
+        
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
