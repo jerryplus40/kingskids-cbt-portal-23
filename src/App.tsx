@@ -33,6 +33,10 @@ const ExamMonitor = lazy(() => import('./pages/staff/ExamMonitor'));
 const ExamResults = lazy(() => import('./pages/staff/ExamResults'));
 const ExamScreen = lazy(() => import('./pages/exam/ExamScreen'));
 const Review = lazy(() => import('./pages/student/Review'));
+const Scores = lazy(() => import('./pages/staff/Scores'));
+const Results = lazy(() => import('./pages/staff/Results'));
+const Reports = lazy(() => import('./pages/student/Reports'));
+const ChildPage = lazy(() => import('./pages/parent/ChildPage'));
 const StudentHome = lazy(() => import('./pages/student/StudentHome'));
 const ParentHome = lazy(() => import('./pages/parent/ParentHome'));
 const CandidateHome = lazy(() => import('./pages/candidate/CandidateHome'));
@@ -84,10 +88,14 @@ export default function App() {
                   <Route path="/staff/exams/:id" element={<RequireAuth roles={STAFF}><ExamBuilder /></RequireAuth>} />
                   <Route path="/staff/exams/:id/monitor" element={<RequireAuth permission="exams.invigilate"><ExamMonitor /></RequireAuth>} />
                   <Route path="/staff/exams/:id/results" element={<RequireAuth roles={STAFF}><ExamResults /></RequireAuth>} />
+                  <Route path="/staff/scores" element={<RequireAuth permission="scores.enter"><Scores /></RequireAuth>} />
+                  <Route path="/staff/results" element={<RequireAuth roles={STAFF}><Results /></RequireAuth>} />
 
                   <Route path="/student" element={<RequireAuth roles={['student']}><StudentHome /></RequireAuth>} />
                   <Route path="/student/review/:attemptId" element={<RequireAuth roles={['student', 'applicant']}><Review /></RequireAuth>} />
+                  <Route path="/student/reports" element={<RequireAuth roles={['student']}><Reports /></RequireAuth>} />
                   <Route path="/parent" element={<RequireAuth roles={['parent']}><ParentHome /></RequireAuth>} />
+                  <Route path="/parent/child/:studentId" element={<RequireAuth roles={['parent']}><ChildPage /></RequireAuth>} />
                   <Route path="/candidate" element={<RequireAuth roles={['applicant']}><CandidateHome /></RequireAuth>} />
                 </Route>
 

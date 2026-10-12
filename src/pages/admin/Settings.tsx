@@ -11,6 +11,7 @@ import { useSchoolSettings } from '@/hooks/useReferenceData';
 import { supabase } from '@/lib/supabase';
 import { uploadImage } from '@/lib/upload';
 import type { SchoolSettings } from '@/types/db';
+import { GradeScaleEditor } from '@/features/results/GradeScaleEditor';
 
 type Editable = Pick<SchoolSettings, 'school_name' | 'address' | 'motto' | 'phone' | 'email' | 'ca_weight' | 'exam_weight'>;
 
@@ -108,6 +109,7 @@ export default function Settings() {
         </CardContent>
       </Card>
       <Button onClick={save} disabled={saving}>{saving ? 'Saving…' : 'Save settings'}</Button>
+      <GradeScaleEditor />
     </div>
   );
 }

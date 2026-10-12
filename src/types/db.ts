@@ -50,6 +50,7 @@ export interface Term {
   term: 1 | 2 | 3;
   starts_on: string | null;
   ends_on: string | null;
+  next_term_begins: string | null;
 }
 
 export interface SchoolClass {

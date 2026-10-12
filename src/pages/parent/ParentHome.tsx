@@ -1,4 +1,6 @@
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/auth/AuthProvider';
@@ -32,9 +34,12 @@ export default function ParentHome() {
             <CardHeader>
               <CardTitle className="text-base">{fullName(student.profile)}</CardTitle>
             </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-              {student.admission_no}
-              {student.class && ` · ${student.class.name}`}
+            <CardContent className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
+              <span>
+                {student.admission_no}
+                {student.class && ` · ${student.class.name}`}
+              </span>
+              <Button asChild size="sm"><Link to={`/parent/child/${student.id}`}>Results and report cards</Link></Button>
             </CardContent>
           </Card>
         ))}

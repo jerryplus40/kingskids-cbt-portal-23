@@ -125,7 +125,6 @@ export default function QuestionBank() {
         cell: ({ row }) => (row.original.status === 'approved' ? <Badge variant="secondary">Approved</Badge> : <Badge variant="outline">Draft</Badge>),
       },
     ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [rows, selected, allSelected],
   );
 
