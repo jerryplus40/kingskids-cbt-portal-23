@@ -319,7 +319,7 @@ export default function Admissions() {
           {letters.map((a, i) => (
             <div key={a.id} className={`mx-auto max-w-[180mm] p-8 text-[13px] leading-relaxed ${i < letters.length - 1 ? 'page-break' : ''}`}>
               <div className="mb-6 border-b-2 border-black pb-3 text-center">
-                {settings?.logo_url && <img src={settings.logo_url} alt="" className="mx-auto mb-2 h-16" />}
+                <img src={settings?.logo_url ?? '/brand/logo.png'} alt="" className="mx-auto mb-2 h-16" />
                 <div className="text-lg font-bold uppercase">{settings?.school_name}</div>
                 {settings?.address && <div>{settings.address}</div>}
               </div>

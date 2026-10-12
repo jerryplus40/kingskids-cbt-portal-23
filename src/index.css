@@ -13,7 +13,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 224 76% 40%;
+    /* King's Kids indigo, from the logo (#403F96) */
+    --primary: 241 41% 42%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -30,7 +31,11 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 224 76% 48%;
+    --ring: 241 41% 52%;
+
+    /* King's Kids green, from the logo (#00A651) */
+    --brand-green: 149 100% 33%;
+    --brand-green-foreground: 0 0% 100%;
 
     --radius: 0.5rem;
 

@@ -13,7 +13,7 @@ export function ReportCard({ data }: { data: ReportCardData }) {
   return (
     <article className="mx-auto w-full max-w-[210mm] bg-white p-6 text-[12px] leading-snug text-black print:p-0">
       <header className="flex items-center gap-4 border-b-2 border-black pb-3">
-        {school.logo_url && <img src={school.logo_url} alt="" className="h-16 w-16 object-contain" />}
+        <img src={school.logo_url ?? '/brand/logo.png'} alt="" className="h-16 w-auto max-w-[96px] object-contain" />
         <div className="flex-1 text-center">
           <h1 className="text-lg font-bold uppercase">{school.school_name}</h1>
           {school.address && <p>{school.address}</p>}

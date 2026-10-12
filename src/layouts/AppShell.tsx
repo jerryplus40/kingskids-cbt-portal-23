@@ -58,11 +58,7 @@ export function AppShell() {
       <Sidebar>
         <SidebarHeader className="border-b px-4 py-3">
           <Link to="/" className="flex items-center gap-2">
-            {settings?.logo_url ? (
-              <img src={settings.logo_url} alt="" className="h-8 w-8 rounded object-contain" />
-            ) : (
-              <div className="flex h-8 w-8 items-center justify-center rounded bg-primary text-sm font-bold text-primary-foreground">KK</div>
-            )}
+            <img src={settings?.logo_url ?? '/brand/mark-192.png'} alt="" className="h-9 w-9 rounded object-contain" />
             <div className="leading-tight">
               <div className="text-sm font-semibold">King's Kids CBT</div>
               <div className="text-xs text-muted-foreground">{ROLE_LABELS[profile.role]}</div>
