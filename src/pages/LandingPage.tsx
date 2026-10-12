@@ -3,7 +3,6 @@ import {
   ArrowRight,
   BookOpenCheck,
   CheckCircle2,
-  ClipboardList,
   Clock,
   FileText,
   GraduationCap,
@@ -116,7 +115,7 @@ export default function LandingPage() {
               {['Every answer saved as it is chosen', 'Keeps going through power cuts', 'Report cards parents can open', 'Works on school computers and phones'].map(
                 (point) => (
                   <li key={point} className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 shrink-0 text-brand-green" />
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" strokeWidth={2} />
                     {point}
                   </li>
                 ),
@@ -130,12 +129,12 @@ export default function LandingPage() {
               src="/images/students-at-computers.jpg"
               alt="King's Kids students taking a computer-based test"
               className="relative aspect-[3/2] w-full rounded-3xl object-cover"
-              width={1400}
-              height={931}
+              width={1600}
+              height={1064}
             />
             <div className="absolute -left-3 bottom-6 flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-lg sm:-left-6">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-green text-white">
-                <ClipboardList className="h-5 w-5" />
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <CheckCircle2 className="h-5 w-5" strokeWidth={1.75} />
               </span>
               <span className="text-sm">
                 <span className="block font-semibold">Answers saved</span>
@@ -155,8 +154,8 @@ export default function LandingPage() {
             <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {ROLES.map((role) => (
                 <div key={role.title} className="rounded-2xl border border-slate-200 bg-white p-6">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                    <role.icon className="h-6 w-6" />
+                  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <role.icon className="h-6 w-6" strokeWidth={1.75} />
                   </span>
                   <h3 className="mt-5 text-lg font-semibold">{role.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-slate-600">{role.body}</p>
@@ -197,7 +196,9 @@ export default function LandingPage() {
             <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {INTEGRITY.map((item) => (
                 <div key={item.title} className="rounded-2xl bg-white/10 p-6">
-                  <item.icon className="h-7 w-7 text-brand-green" strokeWidth={2.25} />
+                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15">
+                    <item.icon className="h-6 w-6 text-white" strokeWidth={1.75} />
+                  </span>
                   <h3 className="mt-4 font-semibold">{item.title}</h3>
                   <p className="mt-1 text-sm leading-relaxed text-primary-foreground/80">{item.body}</p>
                 </div>
@@ -255,9 +256,9 @@ export default function LandingPage() {
           </div>
           <div className="space-y-2 text-sm">
             <h3 className="mb-3 font-semibold text-slate-900">Portal</h3>
-            <Link to="/login" className="flex items-center gap-2 text-slate-600 hover:text-primary"><KeyRound className="h-4 w-4" />Sign in</Link>
-            <Link to="/entrance" className="flex items-center gap-2 text-slate-600 hover:text-primary"><GraduationCap className="h-4 w-4" />Apply for admission</Link>
-            <Link to="/privacy" className="flex items-center gap-2 text-slate-600 hover:text-primary"><FileText className="h-4 w-4" />Privacy notice</Link>
+            <Link to="/login" className="flex items-center gap-2 text-slate-600 hover:text-primary"><KeyRound className="h-4 w-4" strokeWidth={1.75} />Sign in</Link>
+            <Link to="/entrance" className="flex items-center gap-2 text-slate-600 hover:text-primary"><GraduationCap className="h-4 w-4" strokeWidth={1.75} />Apply for admission</Link>
+            <Link to="/privacy" className="flex items-center gap-2 text-slate-600 hover:text-primary"><FileText className="h-4 w-4" strokeWidth={1.75} />Privacy notice</Link>
           </div>
         </div>
         <div className="border-t border-slate-200 py-5 text-center text-xs text-slate-500">
