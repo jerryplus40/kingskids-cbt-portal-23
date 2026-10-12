@@ -62,14 +62,14 @@ const Login = () => {
           <p className="text-xl text-gray-600">Access your King's Kids CBT Portal</p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className={`grid gap-8 ${import.meta.env.DEV ? "lg:grid-cols-2" : "max-w-md mx-auto"}`}>
           <LoginForm 
             email={email}
             setEmail={setEmail}
             password={password}
             setPassword={setPassword}
           />
-          <QuickDemoAccess onQuickLogin={quickLogin} />
+          {import.meta.env.DEV && <QuickDemoAccess onQuickLogin={quickLogin} />}
         </div>
       </div>
     </div>

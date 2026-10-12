@@ -85,13 +85,14 @@ export const DetailedResultView = ({ submissionId, onClose }: DetailedResultView
         }
       },
       // Add more mock questions...
+      // Fixed sample answers: every fifth one is wrong, so the view is stable between openings
       ...Array.from({length: 18}, (_, i) => ({
         questionNumber: i + 3,
         question: `Sample question ${i + 3}`,
         correctAnswer: 'A' as 'A' | 'B' | 'C' | 'D' | 'E',
-        studentAnswer: Math.random() > 0.2 ? 'A' as 'A' | 'B' | 'C' | 'D' | 'E' : 'B' as 'A' | 'B' | 'C' | 'D' | 'E',
-        isCorrect: Math.random() > 0.2,
-        marks: Math.random() > 0.2 ? 5 : 0,
+        studentAnswer: (i % 5 === 4 ? 'B' : 'A') as 'A' | 'B' | 'C' | 'D' | 'E',
+        isCorrect: i % 5 !== 4,
+        marks: i % 5 === 4 ? 0 : 5,
         options: {
           A: 'Option A',
           B: 'Option B', 

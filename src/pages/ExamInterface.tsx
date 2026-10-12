@@ -1,5 +1,6 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { scoreAnswers } from '@/lib/grading';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -107,19 +108,21 @@ const ExamInterface = () => {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [currentQuestion, examQuestions.length]);
 
+  // handleSubmitExam is redefined every render; the ref always holds the latest one,
+  // so the timeout submits the answers actually given rather than an empty sheet.
+  const submitRef = useRef<() => void>(() => {});
+
   useEffect(() => {
     const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          handleSubmitExam();
-          return 0;
-        }
-        return prev - 1;
-      });
+      setTimeLeft((prev) => Math.max(prev - 1, 0));
     }, 1000);
 
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (timeLeft === 0) submitRef.current();
+  }, [timeLeft]);
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -148,10 +151,7 @@ const ExamInterface = () => {
   };
 
   const handleSubmitExam = () => {
-    const score = examQuestions.reduce((total, question, index) => {
-      const userAnswer = answers[index];
-      return total + (userAnswer === question.correctAnswer ? 1 : 0);
-    }, 0);
+    const score = scoreAnswers(examQuestions, answers);
 
     toast({
       title: "Exam Submitted",
@@ -160,6 +160,8 @@ const ExamInterface = () => {
 
     navigate('/student');
   };
+
+  submitRef.current = handleSubmitExam;
 
   // Return loading state if exam or questions are not available
   if (!exam || examQuestions.length === 0) {
