@@ -25,6 +25,14 @@ const Academics = lazy(() => import('./pages/admin/Academics'));
 const Settings = lazy(() => import('./pages/admin/Settings'));
 const AuditLog = lazy(() => import('./pages/admin/AuditLog'));
 const StaffHome = lazy(() => import('./pages/staff/StaffHome'));
+const QuestionBank = lazy(() => import('./pages/staff/QuestionBank'));
+const QuestionImport = lazy(() => import('./pages/staff/QuestionImport'));
+const Exams = lazy(() => import('./pages/staff/Exams'));
+const ExamBuilder = lazy(() => import('./pages/staff/ExamBuilder'));
+const ExamMonitor = lazy(() => import('./pages/staff/ExamMonitor'));
+const ExamResults = lazy(() => import('./pages/staff/ExamResults'));
+const ExamScreen = lazy(() => import('./pages/exam/ExamScreen'));
+const Review = lazy(() => import('./pages/student/Review'));
 const StudentHome = lazy(() => import('./pages/student/StudentHome'));
 const ParentHome = lazy(() => import('./pages/parent/ParentHome'));
 const CandidateHome = lazy(() => import('./pages/candidate/CandidateHome'));
@@ -57,6 +65,8 @@ export default function App() {
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/mfa" element={<MfaChallenge />} />
                 <Route path="/change-password" element={<RequireAuth><ChangePassword /></RequireAuth>} />
+                {/* The exam screen is full-page, outside the sidebar layout */}
+                <Route path="/exam/:examId" element={<RequireAuth roles={['student', 'applicant']}><ExamScreen /></RequireAuth>} />
 
                 <Route element={<Shell />}>
                   <Route path="/security" element={<RequireAuth roles={STAFF}><Security /></RequireAuth>} />
@@ -68,8 +78,15 @@ export default function App() {
                   <Route path="/admin/audit" element={<RequireAuth permission="audit.view"><AuditLog /></RequireAuth>} />
 
                   <Route path="/staff" element={<RequireAuth roles={STAFF}><StaffHome /></RequireAuth>} />
+                  <Route path="/staff/questions" element={<RequireAuth permission="questions.author"><QuestionBank /></RequireAuth>} />
+                  <Route path="/staff/questions/import" element={<RequireAuth permission="questions.author"><QuestionImport /></RequireAuth>} />
+                  <Route path="/staff/exams" element={<RequireAuth permission="exams.manage"><Exams /></RequireAuth>} />
+                  <Route path="/staff/exams/:id" element={<RequireAuth roles={STAFF}><ExamBuilder /></RequireAuth>} />
+                  <Route path="/staff/exams/:id/monitor" element={<RequireAuth permission="exams.invigilate"><ExamMonitor /></RequireAuth>} />
+                  <Route path="/staff/exams/:id/results" element={<RequireAuth roles={STAFF}><ExamResults /></RequireAuth>} />
 
                   <Route path="/student" element={<RequireAuth roles={['student']}><StudentHome /></RequireAuth>} />
+                  <Route path="/student/review/:attemptId" element={<RequireAuth roles={['student', 'applicant']}><Review /></RequireAuth>} />
                   <Route path="/parent" element={<RequireAuth roles={['parent']}><ParentHome /></RequireAuth>} />
                   <Route path="/candidate" element={<RequireAuth roles={['applicant']}><CandidateHome /></RequireAuth>} />
                 </Route>
