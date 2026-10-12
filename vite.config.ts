@@ -14,6 +14,17 @@ export default defineConfig(({ mode }) => ({
     mode === 'development' &&
     componentTagger(),
   ].filter(Boolean),
+  build: {
+    rollupOptions: {
+      output: {
+        // Keep libraries that only some pages use out of the entry chunk every page loads
+        manualChunks: {
+          forms: ['zod', 'react-hook-form', '@hookform/resolvers'],
+          table: ['@tanstack/react-table'],
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

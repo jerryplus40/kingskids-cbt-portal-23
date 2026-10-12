@@ -23,3 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# Environment
+.env
+.env.*
+!.env.example
+supabase/.temp
+supabase/.branches

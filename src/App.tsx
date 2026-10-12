@@ -1,86 +1,85 @@
+import { lazy, Suspense, type ReactNode } from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { AuthProvider } from '@/auth/AuthProvider';
+import { RequireAuth } from '@/auth/RequireAuth';
+import { FullPageSpinner } from '@/components/FullPageSpinner';
+import type { AppRole } from '@/types/db';
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from './contexts/AuthContext';
-import { ExamProvider } from './contexts/ExamContext';
-import { ProtectedRoute } from './components/ProtectedRoute';
-import LandingPage from "./pages/LandingPage";
-import Index from "./pages/Index";
-import Login from "./pages/Login";
-import StudentDashboard from "./pages/StudentDashboard";
-import TeacherDashboard from "./pages/TeacherDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
-import ParentDashboard from "./pages/ParentDashboard";
-import ExamInterface from "./pages/ExamInterface";
-import EntranceExam from "./pages/EntranceExam";
-import NotFound from "./pages/NotFound";
+// Each area loads on demand, so the exam screen never downloads admin code
+const AppShell = lazy(() => import('./layouts/AppShell').then((m) => ({ default: m.AppShell })));
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const EntranceExam = lazy(() => import('./pages/EntranceExam'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const Login = lazy(() => import('./pages/auth/Login'));
+const ChangePassword = lazy(() => import('./pages/auth/ChangePassword'));
+const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/auth/ResetPassword'));
+const MfaChallenge = lazy(() => import('./pages/auth/MfaChallenge'));
+const Security = lazy(() => import('./pages/auth/Security'));
+const AdminOverview = lazy(() => import('./pages/admin/Overview'));
+const People = lazy(() => import('./pages/admin/People'));
+const Academics = lazy(() => import('./pages/admin/Academics'));
+const Settings = lazy(() => import('./pages/admin/Settings'));
+const AuditLog = lazy(() => import('./pages/admin/AuditLog'));
+const StaffHome = lazy(() => import('./pages/staff/StaffHome'));
+const StudentHome = lazy(() => import('./pages/student/StudentHome'));
+const ParentHome = lazy(() => import('./pages/parent/ParentHome'));
+const CandidateHome = lazy(() => import('./pages/candidate/CandidateHome'));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
+});
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <ExamProvider>
+const STAFF: AppRole[] = ['admin', 'exam_officer', 'teacher'];
+
+/** Signed-in pages inside the sidebar layout. */
+function Shell({ children }: { children?: ReactNode }) {
+  return <RequireAuth>{children ?? <AppShell />}</RequireAuth>;
+}
+
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
         <TooltipProvider>
-          <Toaster />
-          <Sonner />
+          <Toaster richColors position="top-center" />
           <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/landing" element={<LandingPage />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/entrance" element={<EntranceExam />} />
-              <Route 
-                path="/student" 
-                element={
-                  <ProtectedRoute allowedRoles={['student']}>
-                    <StudentDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/teacher" 
-                element={
-                  <ProtectedRoute allowedRoles={['teacher']}>
-                    <TeacherDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin" 
-                element={
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/parent" 
-                element={
-                  <ProtectedRoute allowedRoles={['parent']}>
-                    <ParentDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/exam/:examId" 
-                element={
-                  <ProtectedRoute allowedRoles={['student']}>
-                    <ExamInterface />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route path="/404" element={<NotFound />} />
-              <Route path="*" element={<Navigate to="/404" replace />} />
-            </Routes>
+            <Suspense fallback={<FullPageSpinner />}>
+              <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/landing" element={<Navigate to="/" replace />} />
+                <Route path="/entrance" element={<EntranceExam />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/mfa" element={<MfaChallenge />} />
+                <Route path="/change-password" element={<RequireAuth><ChangePassword /></RequireAuth>} />
+
+                <Route element={<Shell />}>
+                  <Route path="/security" element={<RequireAuth roles={STAFF}><Security /></RequireAuth>} />
+
+                  <Route path="/admin" element={<RequireAuth roles={['admin']}><AdminOverview /></RequireAuth>} />
+                  <Route path="/admin/users" element={<RequireAuth permission="users.manage"><People /></RequireAuth>} />
+                  <Route path="/admin/academics" element={<RequireAuth permission="academics.manage"><Academics /></RequireAuth>} />
+                  <Route path="/admin/settings" element={<RequireAuth permission="settings.manage"><Settings /></RequireAuth>} />
+                  <Route path="/admin/audit" element={<RequireAuth permission="audit.view"><AuditLog /></RequireAuth>} />
+
+                  <Route path="/staff" element={<RequireAuth roles={STAFF}><StaffHome /></RequireAuth>} />
+
+                  <Route path="/student" element={<RequireAuth roles={['student']}><StudentHome /></RequireAuth>} />
+                  <Route path="/parent" element={<RequireAuth roles={['parent']}><ParentHome /></RequireAuth>} />
+                  <Route path="/candidate" element={<RequireAuth roles={['applicant']}><CandidateHome /></RequireAuth>} />
+                </Route>
+
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
           </BrowserRouter>
         </TooltipProvider>
-      </ExamProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-);
-
-export default App;
+      </AuthProvider>
+    </QueryClientProvider>
+  );
+}
