@@ -10,7 +10,8 @@ if (!url || !key || !email || !first || !last) {
 }
 
 const db = createClient(url, key, { auth: { persistSession: false } });
-const password = `kk-${randomBytes(6).toString('base64url')}`;
+// Lowercase, uppercase and a digit, as the Supabase password policy requires
+const password = `kk-${randomBytes(6).toString('hex')}-Kk${randomBytes(1)[0] % 10}`;
 const { data, error } = await db.auth.admin.createUser({
   email: email.toLowerCase(),
   password,

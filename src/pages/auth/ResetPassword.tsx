@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
-import { passwordSchema } from '@/lib/validation';
+import { PASSWORD_HINT, passwordSchema } from '@/lib/validation';
 import { AuthPageFrame } from './AuthPageFrame';
 
 /** Landing page for the emailed reset link; Supabase signs the user in from the URL first. */
@@ -61,7 +61,7 @@ export default function ResetPassword() {
               <div className="space-y-2">
                 <Label htmlFor="password">New password</Label>
                 <Input id="password" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                <p className="text-xs text-muted-foreground">At least 8 characters, with letters and numbers.</p>
+                <p className="text-xs text-muted-foreground">{PASSWORD_HINT}</p>
               </div>
               {error && (
                 <Alert variant="destructive">

@@ -13,7 +13,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import { HOME_BY_ROLE } from '@/auth/home';
 import { supabase } from '@/lib/supabase';
 import { AuthPageFrame } from './AuthPageFrame';
-import { passwordSchema } from '@/lib/validation';
+import { PASSWORD_HINT, passwordSchema } from '@/lib/validation';
 
 const schema = z
   .object({ password: passwordSchema, confirm: z.string() })
@@ -50,7 +50,7 @@ export default function ChangePassword() {
           <CardDescription>
             {forced
               ? 'You signed in with a temporary password. Choose a new one to continue.'
-              : 'At least 8 characters, with letters and numbers.'}
+              : PASSWORD_HINT}
           </CardDescription>
         </CardHeader>
         <CardContent>

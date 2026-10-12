@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
-    "check:functions": "cd supabase/functions && npx -y deno@2 check */index.ts"
+    "check:functions": "cd supabase/functions && npx -y deno@2 check */index.ts && SUPABASE_URL=x SUPABASE_ANON_KEY=x npx -y deno@2 test --allow-env _shared"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

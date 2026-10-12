@@ -31,10 +31,30 @@ export async function requirePerm(req: Request, permission: string): Promise<{ u
   return { userId: userData.user.id };
 }
 
-/** Readable temporary password, e.g. "kk-Hq4P-z7Mx". Avoids look-alike characters. */
+const LOWER = 'abcdefghjkmnpqrstuvwxyz';
+const UPPER = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+const DIGITS = '23456789';
+
+/** Unbiased random index below n. */
+function randomIndex(n: number): number {
+  const limit = 256 - (256 % n);
+  for (;;) {
+    const [b] = crypto.getRandomValues(new Uint8Array(1));
+    if (b < limit) return b % n;
+  }
+}
+
+/**
+ * Readable temporary password, e.g. "kk-Hq4P-z7Mx". Always has a lowercase letter, an
+ * uppercase letter and a digit, as the Supabase password policy requires, and avoids
+ * look-alike characters (0/O, 1/l/I).
+ */
 export function tempPassword(): string {
-  const alphabet = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const bytes = crypto.getRandomValues(new Uint8Array(8));
-  const chars = Array.from(bytes, (b) => alphabet[b % alphabet.length]).join('');
-  return `kk-${chars.slice(0, 4)}-${chars.slice(4)}`;
+  const all = LOWER + UPPER + DIGITS;
+  const chars = [LOWER, UPPER, DIGITS, all, all, all, all, all].map((set) => set[randomIndex(set.length)]);
+  for (let i = chars.length - 1; i > 0; i--) {
+    const j = randomIndex(i + 1);
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+  return `kk-${chars.slice(0, 4).join('')}-${chars.slice(4).join('')}`;
 }

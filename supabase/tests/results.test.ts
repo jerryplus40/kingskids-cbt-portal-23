@@ -137,6 +137,13 @@ describe('report cards and release', () => {
     ).rejects.toThrow(/released/);
   });
 
+  it('still lets a teacher who entered released scores be deleted', async () => {
+    await t.as(null, `delete from auth.users where id = $1`, [teacher]);
+    const rows = await t.as<{ updated_by: string | null }>(null, `select updated_by from term_scores where subject_id = $1`, [mathId]);
+    expect(rows.length).toBeGreaterThan(0);
+    expect(rows.every((r) => r.updated_by === null)).toBe(true);
+  });
+
   it('shows other students’ scores to nobody but staff', async () => {
     const rows = await t.as<{ student_id: string }>(ada, `select student_id from term_scores`);
     expect(new Set(rows.map((r) => r.student_id))).toEqual(new Set([ada]));
