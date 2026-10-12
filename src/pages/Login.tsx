@@ -1,12 +1,14 @@
 
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { BookOpen, ArrowLeft } from 'lucide-react';
 import BackgroundDecorations from '@/components/login/BackgroundDecorations';
 import LoginForm from '@/components/login/LoginForm';
-import QuickDemoAccess from '@/components/login/QuickDemoAccess';
+
+// Loaded only in development, so production bundles never contain the demo panel
+const QuickDemoAccess = import.meta.env.DEV ? lazy(() => import('@/components/login/QuickDemoAccess')) : null;
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -69,7 +71,11 @@ const Login = () => {
             password={password}
             setPassword={setPassword}
           />
-          {import.meta.env.DEV && <QuickDemoAccess onQuickLogin={quickLogin} />}
+          {QuickDemoAccess && (
+            <Suspense fallback={null}>
+              <QuickDemoAccess onQuickLogin={quickLogin} />
+            </Suspense>
+          )}
         </div>
       </div>
     </div>
