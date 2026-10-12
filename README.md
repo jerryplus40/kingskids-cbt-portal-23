@@ -2,6 +2,8 @@
 
 Computer-based tests and examinations, term results and report cards, and entrance admissions for King's Kids Christian International High School.
 
+Live at **https://cbt.kingskidschools.com** (Vercel project `kingskids-cbt-portal-23`). The school's main website at www.kingskidschools.com is a separate project.
+
 - **Staff** build question banks (typed, or imported from Excel or Word), set exams, supervise sittings live, mark theory answers, enter CA and exam scores, and print broadsheets and report cards.
 - **Students** sit exams in a JAMB-style screen that saves every answer as it is chosen and survives refreshes, power cuts and short internet outages.
 - **Parents** see released results and report cards and get an SMS when they are ready.
