@@ -6,32 +6,27 @@ cd "$(dirname "$0")/.."
 
 set -a; source .env; set +a
 : "${SUPABASE_PROJECT_REF:?Set SUPABASE_PROJECT_REF in .env}"
-: "${SUPABASE_DB_PASSWORD:?Set SUPABASE_DB_PASSWORD in .env}"
-: "${SUPABASE_ACCESS_TOKEN:?Set SUPABASE_ACCESS_TOKEN in .env}"
-export SUPABASE_ACCESS_TOKEN
+# Uses SUPABASE_ACCESS_TOKEN from .env if set, otherwise the logged-in Supabase CLI
+[[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]] && export SUPABASE_ACCESS_TOKEN
 
 echo "› Linking project $SUPABASE_PROJECT_REF"
-supabase link --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
+supabase link --project-ref "$SUPABASE_PROJECT_REF"
 
 echo "› Applying auth settings from supabase/config.toml (sign-up off, password rules, two-step sign-in)"
 supabase config push --project-ref "$SUPABASE_PROJECT_REF" --yes
 
 echo "› Applying database migrations"
-supabase db push --password "$SUPABASE_DB_PASSWORD" --yes
+supabase db push --linked --yes
 
 echo "› Deploying edge functions"
 for fn in supabase/functions/*/; do
   name=$(basename "$fn")
   [[ "$name" == _shared ]] && continue
-  supabase functions deploy "$name" --project-ref "$SUPABASE_PROJECT_REF"
+  supabase functions deploy "$name" --project-ref "$SUPABASE_PROJECT_REF" --use-api
 done
 
 echo "› Setting edge function secrets (blank ones are skipped)"
-secrets=()
-for key in SITE_URL ALLOWED_ORIGIN PAYSTACK_SECRET_KEY TERMII_API_KEY TERMII_SENDER_ID TERMII_BASE_URL TERMII_CHANNEL RESEND_API_KEY EMAIL_FROM CRON_SECRET; do
-  [[ -n "${!key:-}" ]] && secrets+=("$key=${!key}")
-done
-[[ ${#secrets[@]} -gt 0 ]] && supabase secrets set --project-ref "$SUPABASE_PROJECT_REF" "${secrets[@]}"
+./scripts/set-secrets.sh
 
 if [[ -n "${CRON_SECRET:-}" ]]; then
   echo "› Scheduling send-notifications every 5 minutes"

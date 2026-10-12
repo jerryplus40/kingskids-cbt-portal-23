@@ -23,6 +23,26 @@ describe('profiles and roles', () => {
     expect(rows[0].role).toBe('teacher');
   });
 
+  it('picks up a role that Supabase Auth writes after inserting the user', async () => {
+    // GoTrue inserts with default app_metadata, then updates it with the custom role
+    const [{ id }] = await t.as<{ id: string }>(
+      null,
+      `insert into auth.users (email, raw_app_meta_data) values ('late@test.local', '{"provider":"email"}') returning id`,
+    );
+    await t.as(
+      null,
+      `update auth.users set raw_app_meta_data = raw_app_meta_data || '{"role":"teacher","must_change_password":true}',
+       raw_user_meta_data = '{"first_name":"Late","last_name":"Role"}' where id = $1`,
+      [id],
+    );
+    const [row] = await t.as<{ role: string; must_change_password: boolean; first_name: string }>(
+      null,
+      `select role, must_change_password, first_name from profiles where id = $1`,
+      [id],
+    );
+    expect(row).toEqual({ role: 'teacher', must_change_password: true, first_name: 'Late' });
+  });
+
   it('gives users with no role the least-privileged applicant role', async () => {
     const [{ id }] = await t.as<{ id: string }>(null, `insert into auth.users (email) values ('x@test.local') returning id`);
     const rows = await t.as<{ role: string }>(null, `select role from profiles where id = $1`, [id]);
