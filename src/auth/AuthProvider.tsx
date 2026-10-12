@@ -21,14 +21,45 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+const PROFILE_CACHE = 'kk-profile';
+
+/** Last profile seen on this device, so a page reload during an internet outage keeps the user signed in. */
+function cachedProfile(userId: string): { profile: Profile; permissions: Set<string> } | null {
+  try {
+    const cached = JSON.parse(localStorage.getItem(PROFILE_CACHE) ?? 'null') as { profile: Profile; permissions: string[] } | null;
+    return cached?.profile.id === userId ? { profile: cached.profile, permissions: new Set(cached.permissions) } : null;
+  } catch {
+    return null;
+  }
+}
+
 async function loadProfile(userId: string): Promise<{ profile: Profile | null; permissions: Set<string> }> {
-  const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
+  const { data: profile, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
+  if (error) return cachedProfile(userId) ?? { profile: null, permissions: new Set() };
   if (!profile) return { profile: null, permissions: new Set() };
   const { data: perms } = await supabase.from('role_permissions').select('permission').eq('role', profile.role);
-  return { profile: profile as Profile, permissions: new Set((perms ?? []).map((p) => p.permission as string)) };
+  const permissions = (perms ?? []).map((p) => p.permission as string);
+  try {
+    localStorage.setItem(PROFILE_CACHE, JSON.stringify({ profile, permissions }));
+  } catch {
+    // ignore
+  }
+  return { profile: profile as Profile, permissions: new Set(permissions) };
+}
+
+/** Removes this user's cached data from a shared computer. Unsaved exam answers are kept. */
+function clearDeviceCache() {
+  try {
+    for (const key of Object.keys(localStorage)) {
+      if (key === PROFILE_CACHE || key.startsWith('kk-exam-paper-') || key.startsWith('kk-exam-flags-')) localStorage.removeItem(key);
+    }
+  } catch {
+    // ignore
+  }
 }
 
 async function mfaPending(): Promise<boolean> {
+  // Reads the session token locally, so it works offline
   const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
   return !!data && data.nextLevel === 'aal2' && data.currentLevel !== 'aal2';
 }
@@ -88,6 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [applySession]);
 
   const signOut = useCallback(async () => {
+    clearDeviceCache();
     await supabase.auth.signOut();
   }, []);
 

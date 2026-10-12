@@ -4,6 +4,7 @@ import {
   FileSpreadsheet,
   FileText,
   Award,
+  DoorOpen,
   GraduationCap,
   History,
   LayoutDashboard,
@@ -52,6 +53,7 @@ export const NAV: NavGroup[] = [
   {
     label: 'School',
     items: [
+      { label: 'Admissions', to: '/staff/admissions', icon: DoorOpen, permission: 'entrance.manage' },
       { label: 'People', to: '/admin/users', icon: Users, permission: 'users.manage' },
       { label: 'Classes and subjects', to: '/admin/academics', icon: School, permission: 'academics.manage' },
       { label: 'Settings', to: '/admin/settings', icon: Settings, permission: 'settings.manage' },

@@ -276,6 +276,12 @@ language sql stable security definer set search_path = public as $$
   )
 $$;
 
+-- The exam's duration plus the candidate's extra time
+create function public.candidate_duration(p_exam public.exams, p_user uuid) returns interval
+language sql stable security definer set search_path = public as $$
+  select make_interval(secs => p_exam.duration_minutes * 60 * (1 + coalesce((select extra_time_percent from public.profiles where id = p_user), 0) / 100.0))
+$$;
+
 -- Starts or resumes the caller's attempt and returns the paper.
 create function public.start_exam(p_exam_id uuid, p_client_info jsonb default null) returns jsonb
 language plpgsql security definer set search_path = public as $$
@@ -356,7 +362,7 @@ begin
     values (
       p_exam_id, v_user, v_used + 1,
       -- The window's close cuts the attempt short, so nobody writes after the hall closes
-      least(now() + make_interval(mins => v_exam.duration_minutes), coalesce(v_exam.closes_at, 'infinity')),
+      least(now() + public.candidate_duration(v_exam, v_user), coalesce(v_exam.closes_at, 'infinity')),
       v_layout, v_max, p_client_info
     )
     returning * into v_attempt;

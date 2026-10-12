@@ -17,6 +17,8 @@ import { downloadSpreadsheet } from '@/lib/spreadsheet';
 import { fullName, type Profile } from '@/types/db';
 import { useExam } from '@/features/exams/queries';
 import { AnswerScript } from '@/features/exams/AnswerScript';
+import { ItemAnalysis } from '@/features/exams/ItemAnalysis';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Review } from '@/features/exams/types';
 
 interface AttemptRow {
@@ -167,16 +169,25 @@ export default function ExamResults() {
           </CardContent>
         </Card>
       )}
-      <DataTable
-        columns={columns}
-        data={rows}
-        isLoading={attempts.isLoading}
-        error={attempts.error}
-        searchPlaceholder="Search candidate"
-        emptyMessage="Nobody has started this exam yet."
-        onRowClick={(r) => r.status === 'submitted' && setScriptFor(r)}
-        pageSize={50}
-      />
+      <Tabs defaultValue="candidates">
+        <TabsList>
+          <TabsTrigger value="candidates">Candidates</TabsTrigger>
+          <TabsTrigger value="items">Question analysis</TabsTrigger>
+        </TabsList>
+        <TabsContent value="candidates" className="mt-4">
+          <DataTable
+            columns={columns}
+            data={rows}
+            isLoading={attempts.isLoading}
+            error={attempts.error}
+            searchPlaceholder="Search candidate"
+            emptyMessage="Nobody has started this exam yet."
+            onRowClick={(r) => r.status === 'submitted' && setScriptFor(r)}
+            pageSize={50}
+          />
+        </TabsContent>
+        <TabsContent value="items" className="mt-4">{id && <ItemAnalysis examId={id} />}</TabsContent>
+      </Tabs>
       <Sheet open={!!scriptFor} onOpenChange={(o) => !o && setScriptFor(null)}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-2xl">
           <SheetHeader>

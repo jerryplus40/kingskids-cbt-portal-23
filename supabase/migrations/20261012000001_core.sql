@@ -75,6 +75,8 @@ create table public.profiles (
   photo_url text,
   is_active boolean not null default true,
   must_change_password boolean not null default false,
+  -- Extra exam time, e.g. for a candidate with a disability or a medical note
+  extra_time_percent smallint not null default 0 check (extra_time_percent between 0 and 100),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

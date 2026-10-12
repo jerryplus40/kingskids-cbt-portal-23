@@ -1,18 +1,29 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { componentTagger } from "lovable-tagger";
+import { VitePWA } from "vite-plugin-pwa";
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig(() => ({
   server: {
     host: "::",
     port: 8080,
   },
   plugins: [
     react(),
-    mode === 'development' &&
-    componentTagger(),
+    // A service worker keeps the app itself on the device, so a page reload during an internet
+    // outage still opens the exam screen. API calls are never cached.
+    VitePWA({
+      registerType: 'autoUpdate',
+      manifest: false,
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        // Staff-only libraries are large; students never need them
+        globIgnores: ['**/xlsx-*.js', '**/mammoth-*.js'],
+        navigateFallback: '/index.html',
+        cleanupOutdatedCaches: true,
+      },
+    }),
   ].filter(Boolean),
   build: {
     rollupOptions: {
@@ -23,6 +34,7 @@ export default defineConfig(({ mode }) => ({
           // React gets its own chunk so its CommonJS wrapper isn't filed under another vendor chunk
           if (/node_modules\/(react|react-dom|scheduler)\//.test(id)) return 'react';
           if (/node_modules\/(zod|react-hook-form|@hookform)\//.test(id)) return 'forms';
+          if (/node_modules\/(mammoth|jszip|lop|dingbat-to-unicode|bluebird|underscore|xmlbuilder|@xmldom|pako|base64-js|option)\//.test(id)) return 'mammoth';
           if (/node_modules\/@tanstack\/(react-table|table-core)\//.test(id)) return 'table';
         },
       },

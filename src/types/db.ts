@@ -25,6 +25,7 @@ export interface Profile {
   photo_url: string | null;
   is_active: boolean;
   must_change_password: boolean;
+  extra_time_percent: number;
   created_at: string;
 }
 

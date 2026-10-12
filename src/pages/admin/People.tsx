@@ -23,6 +23,7 @@ import { ImportWizard, type ParsedRow } from '@/components/ImportWizard';
 import { useAuth } from '@/auth/AuthProvider';
 import { useClasses } from '@/hooks/useReferenceData';
 import { ROLE_LABELS, fullName, type AppRole, type Profile } from '@/types/db';
+import { supabase } from '@/lib/supabase';
 import { bulkCreateUsers, changeRole, createUser, resetPassword, setActive, type Credential, type NewUser } from '@/features/people/api';
 import { useParents, useStaff, useStudents, type ParentRow, type StudentRow } from '@/features/people/queries';
 import { PersonDialog, type PersonKind } from '@/features/people/PersonDialog';
@@ -83,6 +84,19 @@ export default function People() {
     } catch (error) {
       toast.error((error as Error).message);
     }
+  };
+
+  // Right of access under the Nigeria Data Protection Act: everything held about one person
+  const handleExport = async (person: Profile) => {
+    const { data, error } = await supabase.rpc('export_person_data', { p_user_id: person.id });
+    if (error || !data) return toast.error(error?.message ?? 'Nothing to export');
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `personal-data-${(person.login_id ?? person.id).replace(/[^a-z0-9]+/gi, '-')}.json`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    await supabase.rpc('log_action', { p_action: 'account.export_data', p_entity: 'profiles', p_entity_id: person.id, p_details: null });
   };
 
   const handleRole = async (person: Profile, role: AppRole) => {
@@ -149,6 +163,7 @@ export default function People() {
             <DropdownMenuItem onSelect={() => setEditing(row.original)}>Edit details</DropdownMenuItem>
             <DropdownMenuItem onSelect={() => setAddingGuardianFor(row.original)}>Add parent</DropdownMenuItem>
             <DropdownMenuItem onSelect={() => handleReset(row.original.id)}>Reset password</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => handleExport(row.original.profile)}>Download personal data</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={() => handleActive(row.original.profile, !row.original.profile.is_active)}>
               {row.original.profile.is_active ? 'Deactivate' : 'Reactivate'}
@@ -187,6 +202,7 @@ export default function People() {
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
               <DropdownMenuItem onSelect={() => handleReset(row.original.id)}>Reset password</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => handleExport(row.original)}>Download personal data</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={() => handleActive(row.original, !row.original.is_active)}>
                 {row.original.is_active ? 'Deactivate' : 'Reactivate'}
@@ -214,6 +230,7 @@ export default function People() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onSelect={() => handleReset(row.original.id)}>Reset password</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => handleExport(row.original)}>Download personal data</DropdownMenuItem>
             <DropdownMenuItem onSelect={() => handleActive(row.original, !row.original.is_active)}>
               {row.original.is_active ? 'Deactivate' : 'Reactivate'}
             </DropdownMenuItem>

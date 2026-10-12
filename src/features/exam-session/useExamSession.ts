@@ -1,7 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { Paper, SavedAnswer } from '@/features/exams/types';
-import { clearPending, confirmSaved, loadPending, mergeAnswers, secondsLeft, storePending, type Pending } from './answerQueue';
+import {
+  clearPaper,
+  clearPending,
+  confirmSaved,
+  isNetworkError,
+  loadPaper,
+  loadPending,
+  mergeAnswers,
+  secondsLeft,
+  storePaper,
+  storePending,
+  type Pending,
+} from './answerQueue';
 
 export type Connection = 'online' | 'saving' | 'offline';
 export type Phase = 'loading' | 'error' | 'writing' | 'submitting' | 'finished';
@@ -62,13 +74,21 @@ export function useExamSession(examId: string) {
     (async () => {
       const { data, error: startError } = await supabase.rpc('start_exam', { p_exam_id: examId, p_client_info: clientInfo() });
       if (cancelled) return;
-      if (startError || !data) {
-        setError(startError?.message ?? 'Could not load the exam');
-        setPhase('error');
-        return;
+      let loaded = data as Paper | null;
+      if (startError || !loaded) {
+        // No internet: carry on from the copy on this device; answers queue until it returns
+        const cached = isNetworkError(startError) ? loadPaper<Paper>(examId) : null;
+        if (!cached) {
+          setError(isNetworkError(startError) ? 'No internet connection. Check the network and try again.' : startError?.message ?? 'Could not load the exam');
+          setPhase('error');
+          return;
+        }
+        loaded = cached;
+        setConnection('offline');
+      } else {
+        syncClock(loaded.server_now);
+        storePaper(examId, loaded);
       }
-      const loaded = data as Paper;
-      syncClock(loaded.server_now);
       pending.current = loadPending(loaded.attempt_id);
       setPaper(loaded);
       setDeadline(loaded.deadline_at);
@@ -82,9 +102,10 @@ export function useExamSession(examId: string) {
 
   const finish = useCallback((reason: SubmitResult['reason'], payload?: Partial<SubmitResult>) => {
     if (attemptId) clearPending(attemptId);
+    clearPaper(examId);
     setResult({ score: null, max_score: null, needs_marking: false, reason, ...payload });
     setPhase('finished');
-  }, [attemptId]);
+  }, [attemptId, examId]);
 
   // --- Saving --------------------------------------------------------------
   const flush = useCallback(async () => {

@@ -11,7 +11,10 @@ import type { AppRole } from '@/types/db';
 // Each area loads on demand, so the exam screen never downloads admin code
 const AppShell = lazy(() => import('./layouts/AppShell').then((m) => ({ default: m.AppShell })));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
-const EntranceExam = lazy(() => import('./pages/EntranceExam'));
+const Apply = lazy(() => import('./pages/entrance/Apply'));
+const ApplicationStatus = lazy(() => import('./pages/entrance/Status'));
+const Privacy = lazy(() => import('./pages/Privacy'));
+const Admissions = lazy(() => import('./pages/staff/Admissions'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const Login = lazy(() => import('./pages/auth/Login'));
 const ChangePassword = lazy(() => import('./pages/auth/ChangePassword'));
@@ -63,7 +66,9 @@ export default function App() {
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/landing" element={<Navigate to="/" replace />} />
-                <Route path="/entrance" element={<EntranceExam />} />
+                <Route path="/entrance" element={<Apply />} />
+                <Route path="/entrance/status" element={<ApplicationStatus />} />
+                <Route path="/privacy" element={<Privacy />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
@@ -90,6 +95,7 @@ export default function App() {
                   <Route path="/staff/exams/:id/results" element={<RequireAuth roles={STAFF}><ExamResults /></RequireAuth>} />
                   <Route path="/staff/scores" element={<RequireAuth permission="scores.enter"><Scores /></RequireAuth>} />
                   <Route path="/staff/results" element={<RequireAuth roles={STAFF}><Results /></RequireAuth>} />
+                  <Route path="/staff/admissions" element={<RequireAuth permission="entrance.manage"><Admissions /></RequireAuth>} />
 
                   <Route path="/student" element={<RequireAuth roles={['student']}><StudentHome /></RequireAuth>} />
                   <Route path="/student/review/:attemptId" element={<RequireAuth roles={['student', 'applicant']}><Review /></RequireAuth>} />

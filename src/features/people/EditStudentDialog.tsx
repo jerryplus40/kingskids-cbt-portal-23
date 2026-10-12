@@ -31,6 +31,7 @@ function EditStudentForm({ student, onClose, onSaved }: { student: StudentRow; o
     class_id: student.class_id ?? '',
     gender: student.gender ?? '',
     date_of_birth: student.date_of_birth ?? '',
+    extra_time_percent: String(student.profile.extra_time_percent ?? 0),
   });
   const [saving, setSaving] = useState(false);
   const set = (key: keyof typeof values) => (e: React.ChangeEvent<HTMLInputElement>) => setValues((v) => ({ ...v, [key]: e.target.value }));
@@ -43,7 +44,12 @@ function EditStudentForm({ student, onClose, onSaved }: { student: StudentRow; o
     setSaving(true);
     const profileUpdate = await supabase
       .from('profiles')
-      .update({ first_name: values.first_name.trim(), other_name: values.other_name.trim() || null, last_name: values.last_name.trim() })
+      .update({
+        first_name: values.first_name.trim(),
+        other_name: values.other_name.trim() || null,
+        last_name: values.last_name.trim(),
+        extra_time_percent: Math.min(100, Math.max(0, Number(values.extra_time_percent) || 0)),
+      })
       .eq('id', student.id);
     const studentUpdate = await supabase
       .from('students')
@@ -86,6 +92,11 @@ function EditStudentForm({ student, onClose, onSaved }: { student: StudentRow; o
           </Select>
         </div>
         <div className="space-y-1"><Label>Date of birth</Label><Input type="date" value={values.date_of_birth} onChange={set('date_of_birth')} /></div>
+      </div>
+      <div className="space-y-1">
+        <Label>Extra exam time (%)</Label>
+        <Input type="number" min={0} max={100} className="w-28" value={values.extra_time_percent} onChange={set('extra_time_percent')} />
+        <p className="text-xs text-muted-foreground">For a documented need, e.g. 25 gives 50 minutes for a 40-minute paper.</p>
       </div>
       <p className="text-xs text-muted-foreground">Admission number {student.admission_no} is the student's login and cannot be changed here.</p>
       <DialogFooter>

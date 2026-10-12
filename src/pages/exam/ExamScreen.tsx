@@ -10,14 +10,15 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { RichText } from '@/components/RichText';
 import { FullPageSpinner } from '@/components/FullPageSpinner';
 import { useAuth } from '@/auth/AuthProvider';
+import { HOME_BY_ROLE } from '@/auth/home';
 import { useMyStudent } from '@/hooks/useMyStudent';
 import { useSchoolSettings } from '@/hooks/useReferenceData';
 import { fullName } from '@/types/db';
 import { useMyExams } from '@/features/exams/queries';
-import { formatDateTime, windowState, type MyExam, type PaperQuestion } from '@/features/exams/types';
+import { formatDateTime, windowState, type MyExam, type Paper, type PaperQuestion } from '@/features/exams/types';
 import { useExamSession, type Connection } from '@/features/exam-session/useExamSession';
 import { useLockdown } from '@/features/exam-session/useLockdown';
-import { formatClock, isAnswered } from '@/features/exam-session/answerQueue';
+import { formatClock, isAnswered, loadPaper } from '@/features/exam-session/answerQueue';
 import { CalculatorPanel } from '@/features/exam-session/CalculatorPanel';
 
 // ---------------------------------------------------------------------------
@@ -25,6 +26,8 @@ import { CalculatorPanel } from '@/features/exam-session/CalculatorPanel';
 // ---------------------------------------------------------------------------
 
 function StartScreen({ exam, onStart }: { exam: MyExam; onStart: () => void }) {
+  const { profile } = useAuth();
+  const home = profile ? HOME_BY_ROLE[profile.role] : '/';
   const resuming = !!exam.in_progress_attempt;
   const state = windowState(exam);
   const used = exam.max_attempts !== null && exam.attempts_used >= exam.max_attempts && !resuming;
@@ -67,7 +70,7 @@ function StartScreen({ exam, onStart }: { exam: MyExam; onStart: () => void }) {
             </Alert>
           )}
           <div className="flex gap-2">
-            <Button variant="outline" asChild><Link to="/student">Back</Link></Button>
+            <Button variant="outline" asChild><Link to={home}>Back</Link></Button>
             <Button className="flex-1" size="lg" disabled={!canStart} onClick={onStart}>
               {resuming ? 'Continue exam' : 'Start exam'}
             </Button>
@@ -108,6 +111,7 @@ const flagsKey = (attemptId: string) => `kk-exam-flags-${attemptId}`;
 
 function Sitting({ exam }: { exam: MyExam }) {
   const { profile } = useAuth();
+  const home = profile ? HOME_BY_ROLE[profile.role] : '/';
   const { data: student } = useMyStudent();
   const { data: settings } = useSchoolSettings();
   const session = useExamSession(exam.exam_id);
@@ -210,7 +214,7 @@ function Sitting({ exam }: { exam: MyExam }) {
           <CardHeader><CardTitle>Cannot open the exam</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm">{session.error}</p>
-            <Button asChild><Link to="/student">Back to my exams</Link></Button>
+            <Button asChild><Link to={home}>Back to my exams</Link></Button>
           </CardContent>
         </Card>
       </div>
@@ -233,7 +237,7 @@ function Sitting({ exam }: { exam: MyExam }) {
               <p className="text-sm text-muted-foreground">Your answers have been recorded. Your teacher will release the results.</p>
             )}
             {r?.needs_marking && <p className="text-sm text-muted-foreground">Written answers will be marked by your teacher.</p>}
-            <Button asChild className="w-full"><Link to="/student">Back to my exams</Link></Button>
+            <Button asChild className="w-full"><Link to={home}>Back to my exams</Link></Button>
           </CardContent>
         </Card>
       </div>
@@ -470,9 +474,22 @@ function Sitting({ exam }: { exam: MyExam }) {
 
 export default function ExamScreen() {
   const { examId } = useParams<{ examId: string }>();
+  const { profile } = useAuth();
+  const home = profile ? HOME_BY_ROLE[profile.role] : '/';
   const myExams = useMyExams();
   const [started, setStarted] = useState(false);
-  const exam = myExams.data?.find((e) => e.exam_id === examId);
+  // Offline after a reload: the exam list cannot load, but a sitting already under way can continue from this device's copy
+  const offlinePaper = myExams.isError && examId ? loadPaper<Paper>(examId) : null;
+  const exam: MyExam | undefined =
+    myExams.data?.find((e) => e.exam_id === examId) ??
+    (offlinePaper
+      ? {
+          exam_id: offlinePaper.exam.id, title: offlinePaper.exam.title, kind: 'test', subject: null, duration_minutes: offlinePaper.exam.duration_minutes,
+          opens_at: null, closes_at: null, max_attempts: null, attempts_used: 1, in_progress_attempt: offlinePaper.attempt_id, last_submitted_at: null,
+          score: null, max_score: null, results_released: false, review_allowed: false, last_attempt_id: null,
+          instructions: offlinePaper.exam.instructions, lockdown: offlinePaper.exam.lockdown, calculator: offlinePaper.exam.calculator, status: 'published',
+        }
+      : undefined);
 
   if (myExams.isLoading) return <FullPageSpinner />;
   if (!exam) {
@@ -480,7 +497,7 @@ export default function ExamScreen() {
       <div className="flex min-h-screen items-center justify-center px-4">
         <Card className="max-w-md">
           <CardHeader><CardTitle>Exam not available</CardTitle></CardHeader>
-          <CardContent><Button asChild><Link to="/student">Back to my exams</Link></Button></CardContent>
+          <CardContent><Button asChild><Link to={home}>Back to my exams</Link></Button></CardContent>
         </Card>
       </div>
     );

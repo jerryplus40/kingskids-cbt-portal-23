@@ -57,3 +57,37 @@ export function formatClock(totalSeconds: number): string {
   const ss = String(s).padStart(2, '0');
   return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
 }
+
+// --- Offline copy of the paper -------------------------------------------------
+
+const paperKey = (examId: string) => `kk-exam-paper-${examId}`;
+
+/** Keeps the paper on this device so a reload during an internet outage can continue. */
+export function storePaper(examId: string, paper: unknown) {
+  try {
+    localStorage.setItem(paperKey(examId), JSON.stringify(paper));
+  } catch {
+    // Storage full: the sitting still works online
+  }
+}
+
+export function loadPaper<T extends { deadline_at: string; status: string }>(examId: string): T | null {
+  try {
+    const paper = JSON.parse(localStorage.getItem(paperKey(examId)) ?? 'null') as T | null;
+    return paper && paper.status === 'in_progress' ? paper : null;
+  } catch {
+    return null;
+  }
+}
+
+export const clearPaper = (examId: string) => {
+  try {
+    localStorage.removeItem(paperKey(examId));
+  } catch {
+    // ignore
+  }
+};
+
+/** supabase-js reports a dropped connection as a fetch TypeError rather than a server error. */
+export const isNetworkError = (error: { message?: string; code?: string } | null) =>
+  !!error && (!navigator.onLine || /failed to fetch|networkerror|load failed|network request failed/i.test(error.message ?? ''));

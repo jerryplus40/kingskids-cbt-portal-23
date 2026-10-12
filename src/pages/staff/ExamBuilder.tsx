@@ -17,7 +17,7 @@ import { RichText } from '@/components/RichText';
 import { FullPageSpinner } from '@/components/FullPageSpinner';
 import { useClasses, useSubjects } from '@/hooks/useReferenceData';
 import { supabase } from '@/lib/supabase';
-import { useQuestions } from '@/features/questions/queries';
+import { useQuestionsByIds } from '@/features/questions/queries';
 import type { Question } from '@/features/questions/types';
 import { useAttemptCounts, useExam, useExamPaper } from '@/features/exams/queries';
 import { COUNTS_AS_LABELS, KIND_LABELS, type CountsAs, type Exam } from '@/features/exams/types';
@@ -170,7 +170,7 @@ export default function ExamBuilder() {
   const counts = useAttemptCounts();
   const { data: classes } = useClasses();
   const { data: subjects } = useSubjects();
-  const bank = useQuestions({ subjectId: exam.data?.subject_id ?? undefined });
+  const bank = useQuestionsByIds((paper.data?.questions ?? []).map((q) => q.question_id));
   const [addingTo, setAddingTo] = useState<string | null>(null);
   const [previewing, setPreviewing] = useState(false);
 
@@ -238,7 +238,10 @@ export default function ExamBuilder() {
   return (
     <div className="space-y-6">
       <Button variant="ghost" size="sm" asChild>
-        <Link to="/staff/exams"><ArrowLeft className="mr-2 h-4 w-4" />Exams</Link>
+        <Link to={e.kind === 'entrance' ? '/staff/admissions' : '/staff/exams'}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          {e.kind === 'entrance' ? 'Admissions' : 'Exams'}
+        </Link>
       </Button>
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
@@ -247,7 +250,9 @@ export default function ExamBuilder() {
             <ExamStatusBadge exam={e} />
           </div>
           <p className="text-sm text-muted-foreground">
-            {KIND_LABELS[e.kind]} · {classes?.find((c) => c.id === e.class_id)?.name} · {subjects?.find((s) => s.id === e.subject_id)?.name} · {e.duration_minutes} minutes
+            {[KIND_LABELS[e.kind], classes?.find((c) => c.id === e.class_id)?.name, subjects?.find((sub) => sub.id === e.subject_id)?.name ?? 'Several subjects', `${e.duration_minutes} minutes`]
+              .filter(Boolean)
+              .join(' · ')}
             {paperTotal !== null && ` · ${paperTotal} marks`}
           </p>
         </div>
@@ -313,6 +318,16 @@ export default function ExamBuilder() {
                       disabled={!editable}
                       onBlur={(ev) => ev.target.value !== section.title && run(supabase.from('exam_sections').update({ title: ev.target.value }).eq('id', section.id))}
                     />
+                    {!e.subject_id && (
+                      <Select
+                        value={section.subject_id ?? ''}
+                        onValueChange={(v) => run(supabase.from('exam_sections').update({ subject_id: v }).eq('id', section.id))}
+                        disabled={!editable}
+                      >
+                        <SelectTrigger className="h-8 w-44"><SelectValue placeholder="Subject" /></SelectTrigger>
+                        <SelectContent>{subjects?.map((sub) => <SelectItem key={sub.id} value={sub.id}>{sub.name}</SelectItem>)}</SelectContent>
+                      </Select>
+                    )}
                     <div className="flex items-center gap-1 text-sm">
                       <span className="text-muted-foreground">Draw</span>
                       <Input
@@ -368,7 +383,15 @@ export default function ExamBuilder() {
                   {list.length === 0 && <p className="text-sm text-muted-foreground">No questions in this section yet.</p>}
                   {editable && (
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => setAddingTo(section.id)}><Plus className="mr-1 h-4 w-4" />Add questions</Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setAddingTo(section.id)}
+                        disabled={!(section.subject_id ?? e.subject_id)}
+                        title={!(section.subject_id ?? e.subject_id) ? 'Choose the section subject first' : undefined}
+                      >
+                        <Plus className="mr-1 h-4 w-4" />Add questions
+                      </Button>
                       {sections.length > 1 && list.length === 0 && (
                         <Button variant="ghost" size="sm" onClick={() => run(supabase.from('exam_sections').delete().eq('id', section.id))}>Remove section</Button>
                       )}
@@ -394,7 +417,7 @@ export default function ExamBuilder() {
 
       <AddQuestionsSheet
         open={!!addingTo}
-        subjectId={e.subject_id}
+        subjectId={sections.find((sec) => sec.id === addingTo)?.subject_id ?? e.subject_id}
         classLevel={classLevel}
         alreadyIn={new Set(items.map((i) => i.question_id))}
         onClose={() => setAddingTo(null)}

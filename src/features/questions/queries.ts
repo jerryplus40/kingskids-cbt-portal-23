@@ -25,6 +25,14 @@ export const useQuestions = (filters: QuestionFilters) =>
     },
   });
 
+/** Questions by id, whatever their subject (exam papers with several subjects). */
+export const useQuestionsByIds = (ids: string[]) =>
+  useQuery({
+    queryKey: ['questions', 'ids', [...ids].sort().join(',')],
+    enabled: ids.length > 0,
+    queryFn: async () => (unwrap(await supabase.from('questions').select(QUESTION_SELECT).in('id', ids)) as unknown as Question[]).map(sortOptions),
+  });
+
 export const usePassages = (subjectId?: string) =>
   useQuery({
     queryKey: ['passages', subjectId],
