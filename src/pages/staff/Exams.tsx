@@ -36,13 +36,11 @@ function CreateExamDialog({ open, onClose }: { open: boolean; onClose: () => voi
   const [form, setForm] = useState({ title: '', kind: 'test' as ExamKind, class_id: '', subject_id: '', duration: 40 });
   const [saving, setSaving] = useState(false);
 
-  // Teachers choose from what they teach; exam officers and admins from everything
-  const allowed = useMemo(() => {
-    if (can('exams.all')) return classSubjects ?? [];
-    return (classSubjects ?? []).filter((cs) => cs.teacher_id === profile?.id);
-  }, [can, classSubjects, profile?.id]);
-  const classOptions = classes?.filter((c) => allowed.some((cs) => cs.class_id === c.id)) ?? [];
-  const subjectOptions = subjects?.filter((s) => allowed.some((cs) => cs.class_id === form.class_id && cs.subject_id === s.id)) ?? [];
+  // Exam officers and admins may set any class and subject; teachers only what they are assigned
+  const seesAll = can('exams.all');
+  const mine = useMemo(() => (classSubjects ?? []).filter((cs) => cs.teacher_id === profile?.id), [classSubjects, profile?.id]);
+  const classOptions = (seesAll ? classes : classes?.filter((c) => mine.some((cs) => cs.class_id === c.id))) ?? [];
+  const subjectOptions = (seesAll ? subjects : subjects?.filter((s) => mine.some((cs) => cs.class_id === form.class_id && cs.subject_id === s.id))) ?? [];
 
   const create = async () => {
     if (!form.title.trim() || !form.class_id || !form.subject_id) {
@@ -117,8 +115,13 @@ function CreateExamDialog({ open, onClose }: { open: boolean; onClose: () => voi
               </Select>
             </div>
           </div>
-          {classOptions.length === 0 && (
-            <p className="text-sm text-muted-foreground">You have no class subjects assigned. Ask the administrator to assign them.</p>
+          {!seesAll && classOptions.length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              No classes are assigned to you yet. An administrator assigns them under Classes and subjects → Teaching assignments.
+            </p>
+          )}
+          {seesAll && (classes?.length === 0 || subjects?.length === 0) && (
+            <p className="text-sm text-muted-foreground">Add classes and subjects first, under Classes and subjects.</p>
           )}
         </div>
         <DialogFooter>

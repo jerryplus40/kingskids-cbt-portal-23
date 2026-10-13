@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { CheckCircle2, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -127,9 +128,11 @@ function ClassesTab() {
   const staff = useStaff();
   const mutate = useMutate();
   const [form, setForm] = useState({ level: '', arm: '', stream: '' });
+  const armRef = useRef<HTMLInputElement>(null);
   const teachers = staff.data?.filter((s) => s.is_active) ?? [];
 
-  const create = async () => {
+  const create = async (event: React.FormEvent) => {
+    event.preventDefault();
     if (!form.level.trim()) {
       toast.error('Enter the class level, e.g. JSS1');
       return;
@@ -144,7 +147,9 @@ function ClassesTab() {
       'Class created',
       ['classes'],
     );
-    if (ok) setForm({ level: form.level, arm: '', stream: '' });
+    // Keep the level so the next arm (JSS1 B, JSS1 C…) is one field away
+    if (ok) setForm({ level: form.level, arm: '', stream: form.stream });
+    armRef.current?.focus();
   };
 
   return (
@@ -154,9 +159,10 @@ function ClassesTab() {
           <CardTitle className="text-base">Add a class</CardTitle>
           <CardDescription>Level such as Primary5, JSS1 or SS2; arm such as A or Gold. Senior classes can carry a stream.</CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-wrap items-end gap-2">
-          <div className="space-y-1"><Label>Level</Label><Input className="w-32" placeholder="JSS1" value={form.level} onChange={(e) => setForm({ ...form, level: e.target.value })} /></div>
-          <div className="space-y-1"><Label>Arm</Label><Input className="w-32" placeholder="A" value={form.arm} onChange={(e) => setForm({ ...form, arm: e.target.value })} /></div>
+        <CardContent>
+          <form onSubmit={create} className="flex flex-wrap items-end gap-2">
+          <div className="space-y-1"><Label htmlFor="class-level">Level</Label><Input id="class-level" className="w-32" placeholder="JSS1" value={form.level} onChange={(e) => setForm({ ...form, level: e.target.value })} /></div>
+          <div className="space-y-1"><Label htmlFor="class-arm">Arm</Label><Input id="class-arm" ref={armRef} className="w-32" placeholder="A" value={form.arm} onChange={(e) => setForm({ ...form, arm: e.target.value })} /></div>
           <div className="space-y-1">
             <Label>Stream</Label>
             <Select value={form.stream || NONE} onValueChange={(v) => setForm({ ...form, stream: v === NONE ? '' : v })}>
@@ -169,7 +175,9 @@ function ClassesTab() {
               </SelectContent>
             </Select>
           </div>
-          <Button onClick={create}><Plus className="mr-2 h-4 w-4" />Add</Button>
+          <Button type="submit"><Plus className="mr-2 h-4 w-4" />Add</Button>
+          </form>
+          <p className="mt-2 text-xs text-muted-foreground">Press Enter to add. The level stays filled in, so you can add arm B, C and so on straight after.</p>
         </CardContent>
       </Card>
       <div className="overflow-x-auto rounded-md border">
@@ -224,28 +232,85 @@ function ClassesTab() {
   );
 }
 
+/** "Mathematics, MTH" or "Mathematics" per line → rows to insert. */
+function parseSubjectLines(text: string) {
+  return text
+    .split(/\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [name, code] = line.split(/\s*[,\t]\s*/);
+      return { name: name.trim(), code: code?.trim().toUpperCase() || null };
+    })
+    .filter((row) => row.name);
+}
+
 function SubjectsTab() {
   const subjects = useSubjects();
   const mutate = useMutate();
   const [form, setForm] = useState({ name: '', code: '' });
+  const [bulk, setBulk] = useState<string | null>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
 
-  const create = async () => {
+  const create = async (event: React.FormEvent) => {
+    event.preventDefault();
     if (!form.name.trim()) return;
     const ok = await mutate(
       supabase.from('subjects').insert({ name: form.name.trim(), code: form.code.trim().toUpperCase() || null }),
-      'Subject added',
+      `${form.name.trim()} added`,
       ['subjects'],
     );
     if (ok) setForm({ name: '', code: '' });
+    // Ready for the next subject straight away
+    nameRef.current?.focus();
+  };
+
+  const createMany = async () => {
+    const existing = new Set((subjects.data ?? []).map((s) => s.name.toLowerCase()));
+    const rows = parseSubjectLines(bulk ?? '').filter((r) => !existing.has(r.name.toLowerCase()));
+    if (!rows.length) {
+      toast.error('Nothing new to add');
+      return;
+    }
+    const ok = await mutate(supabase.from('subjects').insert(rows), `${rows.length} subjects added`, ['subjects']);
+    if (ok) setBulk(null);
   };
 
   return (
     <div className="space-y-4">
       <Card>
-        <CardContent className="flex flex-wrap items-end gap-2 pt-6">
-          <div className="space-y-1"><Label>Subject</Label><Input className="w-64" placeholder="Mathematics" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
-          <div className="space-y-1"><Label>Code</Label><Input className="w-28" placeholder="MTH" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} /></div>
-          <Button onClick={create}><Plus className="mr-2 h-4 w-4" />Add</Button>
+        <CardContent className="space-y-3 pt-6">
+          {bulk === null ? (
+            <form onSubmit={create} className="flex flex-wrap items-end gap-2">
+              <div className="space-y-1">
+                <Label htmlFor="subject-name">Subject</Label>
+                <Input id="subject-name" ref={nameRef} className="w-64" placeholder="Mathematics" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="subject-code">Code</Label>
+                <Input id="subject-code" className="w-28" placeholder="MTH" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} />
+              </div>
+              <Button type="submit"><Plus className="mr-2 h-4 w-4" />Add</Button>
+              <Button type="button" variant="ghost" onClick={() => setBulk('')}>Add several at once</Button>
+            </form>
+          ) : (
+            <div className="space-y-2">
+              <Label htmlFor="subject-bulk">One subject per line; add a code after a comma if you like</Label>
+              <Textarea
+                id="subject-bulk"
+                rows={8}
+                autoFocus
+                placeholder={'English Language, ENG\nMathematics, MTH\nBasic Science\nCivic Education, CVE'}
+                value={bulk}
+                onChange={(e) => setBulk(e.target.value)}
+              />
+              <div className="flex gap-2">
+                <Button onClick={createMany}><Plus className="mr-2 h-4 w-4" />Add {parseSubjectLines(bulk).length || ''} subjects</Button>
+                <Button variant="ghost" onClick={() => setBulk(null)}>Cancel</Button>
+              </div>
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">Press Enter to add, then type the next one. Subjects already in the list are skipped.</p>
         </CardContent>
       </Card>
       <div className="flex flex-wrap gap-2">

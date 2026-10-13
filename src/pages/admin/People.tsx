@@ -30,6 +30,7 @@ import { PersonDialog, type PersonKind } from '@/features/people/PersonDialog';
 import { CredentialsDialog } from '@/features/people/CredentialsDialog';
 import { EditStudentDialog } from '@/features/people/EditStudentDialog';
 import { GuardianDialog } from '@/features/people/GuardianDialog';
+import { DeleteAccountDialog } from '@/features/people/DeleteAccountDialog';
 import { STAFF_TEMPLATE, STUDENT_TEMPLATE, parseStaffRows, parseStudentRows } from '@/features/people/parseImport';
 
 const IMPORT_CHUNK = 25;
@@ -52,6 +53,7 @@ export default function People() {
   const [credentials, setCredentials] = useState<Credential[]>([]);
   const [editing, setEditing] = useState<StudentRow | null>(null);
   const [addingGuardianFor, setAddingGuardianFor] = useState<StudentRow | null>(null);
+  const [deleting, setDeleting] = useState<Profile | null>(null);
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['people'] });
 
@@ -168,6 +170,9 @@ export default function People() {
             <DropdownMenuItem onSelect={() => handleActive(row.original.profile, !row.original.profile.is_active)}>
               {row.original.profile.is_active ? 'Deactivate' : 'Reactivate'}
             </DropdownMenuItem>
+            <DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={() => setDeleting(row.original.profile)}>
+              Delete permanently
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -207,6 +212,9 @@ export default function People() {
               <DropdownMenuItem onSelect={() => handleActive(row.original, !row.original.is_active)}>
                 {row.original.is_active ? 'Deactivate' : 'Reactivate'}
               </DropdownMenuItem>
+              <DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={() => setDeleting(row.original)}>
+                Delete permanently
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         ),
@@ -233,6 +241,10 @@ export default function People() {
             <DropdownMenuItem onSelect={() => handleExport(row.original)}>Download personal data</DropdownMenuItem>
             <DropdownMenuItem onSelect={() => handleActive(row.original, !row.original.is_active)}>
               {row.original.is_active ? 'Deactivate' : 'Reactivate'}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={() => setDeleting(row.original)}>
+              Delete permanently
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -352,6 +364,14 @@ export default function People() {
         }}
       />
       <CredentialsDialog credentials={credentials} onClose={() => setCredentials([])} />
+      <DeleteAccountDialog
+        person={deleting}
+        onClose={() => setDeleting(null)}
+        onDeleted={() => {
+          setDeleting(null);
+          refresh();
+        }}
+      />
     </div>
   );
 }

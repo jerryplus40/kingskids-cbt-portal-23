@@ -238,6 +238,25 @@ Deno.serve(async (req) => {
         return json({ ok: true });
       }
 
+      case 'delete': {
+        // Permanent: removes the sign-in and everything that belongs to the person
+        // (student record, exam attempts, scores, parent links, notifications)
+        const userId = body.user_id as string;
+        if (userId === auth.userId) return json({ error: 'You cannot delete your own account' }, 400);
+        const { data: profile } = await db.from('profiles').select('first_name, last_name, role, login_id').eq('id', userId).maybeSingle();
+        if (!profile) return json({ error: 'Account not found' }, 404);
+        if (profile.role === 'admin') {
+          const { count } = await db.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'admin').eq('is_active', true);
+          if ((count ?? 0) <= 1) return json({ error: 'This is the only administrator; add another before deleting it' }, 400);
+        }
+        const { data: student } = await db.from('students').select('admission_no').eq('id', userId).maybeSingle();
+        // Record it first: once deleted there is nothing left to name in the log
+        await audit('account.delete', userId, { name: `${profile.first_name} ${profile.last_name}`.trim(), role: profile.role, login_id: profile.login_id, admission_no: student?.admission_no ?? null });
+        const { error } = await db.auth.admin.deleteUser(userId);
+        if (error) throw error;
+        return json({ ok: true });
+      }
+
       case 'reset_password': {
         const userId = body.user_id as string;
         const password = tempPassword();

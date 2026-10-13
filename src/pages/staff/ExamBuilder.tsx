@@ -210,6 +210,22 @@ export default function ExamBuilder() {
     setAddingTo(null);
   };
 
+  // A question written from inside the exam: approve it (authors may approve their own) and place it
+  const addNewQuestion = async (questionId: string) => {
+    const sectionId = addingTo!;
+    const { data: approved } = await supabase.rpc('approve_questions', { p_ids: [questionId] });
+    if (!approved) {
+      toast.error('The question was saved as a draft but could not be approved. Check it has at least two options and one correct answer.');
+      return;
+    }
+    const position = items.filter((i) => i.section_id === sectionId).length;
+    await run(
+      supabase.from('exam_questions').insert({ exam_id: e.id, section_id: sectionId, question_id: questionId, sort_order: position }),
+      'Question added to the paper',
+    );
+    queryClient.invalidateQueries({ queryKey: ['questions'] });
+  };
+
   const move = async (sectionId: string, index: number, delta: number) => {
     const list = items.filter((i) => i.section_id === sectionId);
     const a = list[index];
@@ -422,6 +438,7 @@ export default function ExamBuilder() {
         alreadyIn={new Set(items.map((i) => i.question_id))}
         onClose={() => setAddingTo(null)}
         onAdd={addQuestions}
+        onCreated={addNewQuestion}
       />
       <PreviewDialog
         open={previewing}

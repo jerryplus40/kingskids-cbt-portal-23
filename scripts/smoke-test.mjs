@@ -191,6 +191,18 @@ async function run() {
     return applied.application_no;
   });
 
+  await step('admin deletes the student permanently; the teacher cannot', async () => {
+    const refused = await invoke(teacher, 'admin-users', { action: 'delete', user_id: studentId }).then(() => null, (e) => e.message);
+    assert(refused, 'teacher was allowed to delete');
+    await invoke(admin, 'admin-users', { action: 'delete', user_id: studentId });
+    const left = must(await service.from('students').select('id').eq('id', studentId));
+    const attempts = must(await service.from('attempts').select('id').eq('candidate_id', studentId));
+    assert(left.length === 0 && attempts.length === 0, 'student data left behind');
+    created.users = created.users.filter((id) => id !== studentId);
+    const log = must(await service.from('audit_log').select('details').eq('action', 'account.delete').eq('entity_id', studentId));
+    assert(log.length === 1, 'deletion not in the audit log');
+  });
+
   await step('teachers cannot see the audit log; admins can', async () => {
     assert(must(await teacher.from('audit_log').select('id').limit(1)).length === 0, 'teacher saw audit log');
     assert(must(await admin.from('audit_log').select('id').limit(1)).length === 1, 'admin saw nothing');

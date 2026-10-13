@@ -144,10 +144,21 @@ describe('report cards and release', () => {
     expect(rows.every((r) => r.updated_by === null)).toBe(true);
   });
 
+  it('deletes a student with exam attempts, released scores and comments completely', async () => {
+    await t.as(null, `delete from auth.users where id = $1`, [ada]);
+    for (const table of ['students', 'term_scores', 'report_comments', 'attempts', 'student_guardians', 'notifications']) {
+      const column = table === 'students' ? 'id' : table === 'attempts' ? 'candidate_id' : table === 'notifications' ? 'user_id' : 'student_id';
+      const rows = await t.as(null, `select 1 from ${table} where ${column} = $1`, [ada]);
+      expect(rows, table).toHaveLength(0);
+    }
+    // The parent account itself stays; only the link went
+    expect(await t.as(null, `select 1 from profiles where id = $1`, [parent])).toHaveLength(1);
+  });
+
   it('shows other students’ scores to nobody but staff', async () => {
-    const rows = await t.as<{ student_id: string }>(ada, `select student_id from term_scores`);
-    expect(new Set(rows.map((r) => r.student_id))).toEqual(new Set([ada]));
-    await expect(report(ada, bola)).rejects.toThrow(/not available/);
+    const rows = await t.as<{ student_id: string }>(bola, `select student_id from term_scores`);
+    expect(new Set(rows.map((r) => r.student_id))).toEqual(new Set([bola]));
+    await expect(report(bola, chidi)).rejects.toThrow(/not available/);
   });
 
   it('keeps notifications private to their owner', async () => {

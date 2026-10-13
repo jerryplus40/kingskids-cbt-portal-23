@@ -58,3 +58,6 @@ export const changeRole = (userId: string, role: AppRole) =>
 
 export const linkGuardian = (studentId: string, guardian: GuardianInput) =>
   invokeFunction<{ guardian: Credential | null }>('admin-users', { action: 'link_guardian', student_id: studentId, guardian });
+
+/** Permanently removes the account and everything that belongs to it. */
+export const deleteAccount = (userId: string) => invokeFunction<{ ok: true }>('admin-users', { action: 'delete', user_id: userId });

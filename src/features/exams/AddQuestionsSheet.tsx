@@ -1,4 +1,11 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import { FileUp, PenLine } from 'lucide-react';
+import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/auth/AuthProvider';
+import { QuestionEditor } from '@/features/questions/QuestionEditor';
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,11 +24,19 @@ interface AddQuestionsSheetProps {
   alreadyIn: Set<string>;
   onClose: () => void;
   onAdd: (questions: Question[]) => Promise<void>;
+  /** A question written here: approve it and put it straight on the paper */
+  onCreated: (questionId: string) => Promise<void>;
 }
 
 /** Picks approved questions from the bank, filtered by topic, difficulty, type and level. */
-export function AddQuestionsSheet({ open, subjectId, classLevel, alreadyIn, onClose, onAdd }: AddQuestionsSheetProps) {
+export function AddQuestionsSheet({ open, subjectId, classLevel, alreadyIn, onClose, onAdd, onCreated }: AddQuestionsSheetProps) {
+  const queryClient = useQueryClient();
+  const { profile, can } = useAuth();
   const questions = useQuestions({ subjectId: subjectId ?? undefined, status: 'approved' });
+  const drafts = useQuestions({ subjectId: subjectId ?? undefined, status: 'draft' });
+  const [writing, setWriting] = useState(false);
+  // Drafts the user may approve: their own, or any if they approve questions
+  const approvable = (drafts.data ?? []).filter((q) => q.created_by === profile?.id || can('questions.approve'));
   const [search, setSearch] = useState('');
   const [topic, setTopic] = useState(ALL);
   const [difficulty, setDifficulty] = useState(ALL);
@@ -48,6 +63,28 @@ export function AddQuestionsSheet({ open, subjectId, classLevel, alreadyIn, onCl
       else next.add(id);
       return next;
     });
+
+  const available = (questions.data ?? []).filter((q) => !alreadyIn.has(q.id));
+  const hiddenByFilters = available.length - shown.length;
+  const clearFilters = () => {
+    setSearch('');
+    setTopic(ALL);
+    setDifficulty(ALL);
+    setType(ALL);
+    setLevelOnly(false);
+  };
+
+  const approveDrafts = async () => {
+    const { data, error } = await supabase.rpc('approve_questions', { p_ids: approvable.map((q) => q.id) });
+    if (error) return toast.error(error.message);
+    const approved = data as number;
+    toast[approved < approvable.length ? 'warning' : 'success'](
+      approved < approvable.length
+        ? `Approved ${approved} of ${approvable.length}. The rest need at least two options and one correct answer; fix them in the question bank.`
+        : `Approved ${approved} questions`,
+    );
+    queryClient.invalidateQueries({ queryKey: ['questions'] });
+  };
 
   const add = async () => {
     setAdding(true);
@@ -95,6 +132,20 @@ export function AddQuestionsSheet({ open, subjectId, classLevel, alreadyIn, onCl
             </label>
           )}
         </div>
+        <div className="flex flex-wrap gap-2 pb-2">
+          <Button size="sm" onClick={() => setWriting(true)} disabled={!subjectId}>
+            <PenLine className="mr-1 h-4 w-4" />Write a new question
+          </Button>
+          <Button size="sm" variant="outline" asChild>
+            <Link to="/staff/questions/import"><FileUp className="mr-1 h-4 w-4" />Import from Word or Excel</Link>
+          </Button>
+        </div>
+        {approvable.length > 0 && (
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+            <span>{approvable.length} draft {approvable.length === 1 ? 'question is' : 'questions are'} waiting for approval in this subject.</span>
+            <Button size="sm" variant="outline" onClick={approveDrafts}>Approve them</Button>
+          </div>
+        )}
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <span>{shown.length} available · {picked.size} chosen</span>
           <Button variant="link" size="sm" onClick={() => setPicked(new Set([...picked, ...shown.map((q) => q.id)]))}>Choose all shown</Button>
@@ -102,7 +153,16 @@ export function AddQuestionsSheet({ open, subjectId, classLevel, alreadyIn, onCl
         <div className="flex-1 space-y-2 overflow-y-auto py-2">
           {questions.isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
           {!questions.isLoading && shown.length === 0 && (
-            <p className="text-sm text-muted-foreground">No approved questions match. Approve drafts in the question bank first.</p>
+            <div className="space-y-2 py-6 text-center text-sm text-muted-foreground">
+              {hiddenByFilters > 0 ? (
+                <>
+                  <p>{hiddenByFilters} questions are hidden by the filters above.</p>
+                  <Button size="sm" variant="outline" onClick={clearFilters}>Clear filters</Button>
+                </>
+              ) : (
+                <p>There are no approved questions for this subject yet. Write one above, or import a paper from Word or Excel.</p>
+              )}
+            </div>
           )}
           {shown.map((q) => (
             <label key={q.id} className={`flex cursor-pointer gap-3 rounded-md border p-3 ${picked.has(q.id) ? 'border-primary bg-primary/5' : ''}`}>
@@ -123,6 +183,13 @@ export function AddQuestionsSheet({ open, subjectId, classLevel, alreadyIn, onCl
           <Button onClick={add} disabled={picked.size === 0 || adding}>{adding ? 'Adding…' : `Add ${picked.size} questions`}</Button>
         </SheetFooter>
       </SheetContent>
+      <QuestionEditor
+        open={writing}
+        question={null}
+        defaults={{ subject_id: subjectId ?? '', class_level: classLevel ?? '' }}
+        onClose={() => setWriting(false)}
+        onSaved={(id) => void onCreated(id)}
+      />
     </Sheet>
   );
 }
