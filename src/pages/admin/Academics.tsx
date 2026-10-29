@@ -332,7 +332,7 @@ function SubjectsTab() {
 }
 
 /** Grid of classes × subjects: tick to offer the subject, pick who teaches it. */
-function AssignmentsTab() {
+function ByClassAssignments() {
   const classes = useClasses();
   const subjects = useSubjects();
   const classSubjects = useClassSubjects();
@@ -362,12 +362,15 @@ function AssignmentsTab() {
           </Select>
         </div>
         {offered.size > 0 && (
+          <div className="space-y-1">
+          <Label>Copy this class's subjects to</Label>
           <Select onValueChange={copyToClass}>
-            <SelectTrigger className="w-56"><SelectValue placeholder="Copy these subjects to…" /></SelectTrigger>
+            <SelectTrigger className="w-56"><SelectValue placeholder="Choose another class" /></SelectTrigger>
             <SelectContent>
               {classes.data?.filter((c) => c.id !== selectedClass).map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
             </SelectContent>
           </Select>
+          </div>
         )}
       </div>
       {selectedClass && (
@@ -421,6 +424,136 @@ function AssignmentsTab() {
         </div>
       )}
       <p className="text-xs text-muted-foreground">Teachers can set exams and enter scores only for the classes and subjects assigned to them here.</p>
+    </div>
+  );
+}
+
+/**
+ * One teacher's whole timetable on one grid: tick every class and subject they take.
+ * Each class subject has one teacher, so ticking a cell held by someone else moves it.
+ */
+function ByTeacherAssignments() {
+  const classes = useClasses();
+  const subjects = useSubjects();
+  const classSubjects = useClassSubjects();
+  const staff = useStaff();
+  const mutate = useMutate();
+  const teachers = staff.data?.filter((s) => s.is_active) ?? [];
+  const [teacherId, setTeacherId] = useState('');
+  const teacher = teachers.find((t) => t.id === teacherId);
+  const byPair = useMemo(
+    () => new Map((classSubjects.data ?? []).map((cs) => [`${cs.class_id}:${cs.subject_id}`, cs])),
+    [classSubjects.data],
+  );
+  const nameOf = (id: string | null) => teachers.find((t) => t.id === id)?.first_name ?? 'another teacher';
+  const mine = (classSubjects.data ?? []).filter((cs) => cs.teacher_id === teacherId).length;
+
+  const toggle = async (classId: string, subjectId: string, on: boolean) => {
+    const cs = byPair.get(`${classId}:${subjectId}`);
+    if (!on) {
+      if (cs) await mutate(supabase.from('class_subjects').update({ teacher_id: null }).eq('id', cs.id), 'Removed', ['class_subjects']);
+      return;
+    }
+    if (cs?.teacher_id && cs.teacher_id !== teacherId && !window.confirm(`${nameOf(cs.teacher_id)} takes this now. Give it to ${teacher?.first_name} instead?`)) return;
+    await mutate(
+      cs
+        ? supabase.from('class_subjects').update({ teacher_id: teacherId }).eq('id', cs.id)
+        : supabase.from('class_subjects').insert({ class_id: classId, subject_id: subjectId, teacher_id: teacherId }),
+      'Assigned',
+      ['class_subjects'],
+    );
+  };
+
+  /** Ticks a subject in every class at once, leaving classes another teacher takes; or clears it. */
+  const toggleRow = async (subjectId: string, on: boolean) => {
+    const free = (classes.data ?? []).filter((c) => {
+      const holder = byPair.get(`${c.id}:${subjectId}`)?.teacher_id;
+      return on ? !holder : holder === teacherId;
+    });
+    if (!free.length) return;
+    await mutate(
+      supabase.from('class_subjects').upsert(
+        free.map((c) => ({ class_id: c.id, subject_id: subjectId, teacher_id: on ? teacherId : null })),
+        { onConflict: 'class_id,subject_id' },
+      ),
+      on ? `Assigned in ${free.length} classes` : 'Removed from all classes',
+      ['class_subjects'],
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="space-y-1">
+          <Label>Teacher</Label>
+          <Select value={teacherId} onValueChange={setTeacherId}>
+            <SelectTrigger className="w-64"><SelectValue placeholder="Choose a teacher" /></SelectTrigger>
+            <SelectContent>{teachers.map((t) => <SelectItem key={t.id} value={t.id}>{fullName(t)}</SelectItem>)}</SelectContent>
+          </Select>
+        </div>
+        {teacher && <p className="pb-2 text-sm text-muted-foreground">{mine} class {mine === 1 ? 'subject' : 'subjects'} assigned</p>}
+      </div>
+      {!teacher ? (
+        <p className="text-sm text-muted-foreground">Choose a teacher, then tick every class and subject they take. A teacher can have as many as you like.</p>
+      ) : (
+        <div className="overflow-x-auto rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Subject</TableHead>
+                {classes.data?.map((c) => <TableHead key={c.id} className="text-center">{c.name}</TableHead>)}
+                <TableHead className="text-center">All classes</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {subjects.data?.map((subject) => {
+                const heldAll = (classes.data ?? []).every((c) => byPair.get(`${c.id}:${subject.id}`)?.teacher_id === teacherId);
+                return (
+                  <TableRow key={subject.id}>
+                    <TableCell className="font-medium">{subject.name}</TableCell>
+                    {classes.data?.map((c) => {
+                      const cs = byPair.get(`${c.id}:${subject.id}`);
+                      const checked = cs?.teacher_id === teacherId;
+                      const other = cs?.teacher_id && !checked ? nameOf(cs.teacher_id) : null;
+                      return (
+                        <TableCell key={c.id} className="text-center">
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4"
+                            checked={checked}
+                            onChange={(e) => toggle(c.id, subject.id, e.target.checked)}
+                            aria-label={`${subject.name} in ${c.name}`}
+                          />
+                          {other && <div className="text-[10px] text-muted-foreground">{other}</div>}
+                        </TableCell>
+                      );
+                    })}
+                    <TableCell className="text-center">
+                      <input type="checkbox" className="h-4 w-4" checked={heldAll} onChange={(e) => toggleRow(subject.id, e.target.checked)} aria-label={`${subject.name} in every class`} />
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+      <p className="text-xs text-muted-foreground">
+        Each subject in a class has one teacher. A name under a box shows who takes it now; ticking it moves it to this teacher.
+      </p>
+    </div>
+  );
+}
+
+function AssignmentsTab() {
+  const [view, setView] = useState<'teacher' | 'class'>('teacher');
+  return (
+    <div className="space-y-4">
+      <div className="inline-flex rounded-md border p-0.5">
+        <Button size="sm" variant={view === 'teacher' ? 'default' : 'ghost'} onClick={() => setView('teacher')}>By teacher</Button>
+        <Button size="sm" variant={view === 'class' ? 'default' : 'ghost'} onClick={() => setView('class')}>By class</Button>
+      </div>
+      {view === 'teacher' ? <ByTeacherAssignments /> : <ByClassAssignments />}
     </div>
   );
 }
