@@ -21,7 +21,7 @@ export default defineConfig(() => ({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
         // Staff-only libraries are large; students never need them
-        globIgnores: ['**/xlsx-*.js', '**/mammoth-*.js'],
+        globIgnores: ['**/xlsx-*.js', '**/docx-*.js'],
         navigateFallback: '/index.html',
         cleanupOutdatedCaches: true,
       },
@@ -36,7 +36,7 @@ export default defineConfig(() => ({
           // React gets its own chunk so its CommonJS wrapper isn't filed under another vendor chunk
           if (/node_modules\/(react|react-dom|scheduler)\//.test(id)) return 'react';
           if (/node_modules\/(zod|react-hook-form|@hookform)\//.test(id)) return 'forms';
-          if (/node_modules\/(mammoth|jszip|lop|dingbat-to-unicode|bluebird|underscore|xmlbuilder|@xmldom|pako|base64-js|option)\//.test(id)) return 'mammoth';
+          if (/node_modules\/(jszip|pako|lie|immediate|setimmediate|readable-stream)\//.test(id)) return 'docx';
           if (/node_modules\/@tanstack\/(react-table|table-core)\//.test(id)) return 'table';
         },
       },

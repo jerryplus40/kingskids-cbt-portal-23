@@ -37,11 +37,13 @@ function CreateExamDialog({ open, onClose }: { open: boolean; onClose: () => voi
   const [form, setForm] = useState({ title: '', kind: 'test' as ExamKind, class_id: '', subject_id: '', duration: 40 });
   const [saving, setSaving] = useState(false);
 
-  // Exam officers and admins may set any class and subject; teachers only what they are assigned
-  const seesAll = can('exams.all');
+  // Any teacher may set an exam for any class and subject; the classes and subjects
+  // they are assigned are listed first, as the likeliest choices
   const mine = useMemo(() => (classSubjects ?? []).filter((cs) => cs.teacher_id === profile?.id), [classSubjects, profile?.id]);
-  const classOptions = (seesAll ? classes : classes?.filter((c) => mine.some((cs) => cs.class_id === c.id))) ?? [];
-  const subjectOptions = (seesAll ? subjects : subjects?.filter((s) => mine.some((cs) => cs.class_id === form.class_id && cs.subject_id === s.id))) ?? [];
+  const mineFirst = <T extends { id: string; name: string }>(items: T[] | undefined, isMine: (item: T) => boolean) =>
+    [...(items ?? [])].sort((a, b) => Number(isMine(b)) - Number(isMine(a)));
+  const classOptions = mineFirst(classes, (c) => mine.some((cs) => cs.class_id === c.id));
+  const subjectOptions = mineFirst(subjects, (sub) => mine.some((cs) => cs.subject_id === sub.id && (!form.class_id || cs.class_id === form.class_id)));
 
   const create = async () => {
     if (!form.title.trim() || !form.class_id || !form.subject_id) {
@@ -67,7 +69,7 @@ function CreateExamDialog({ open, onClose }: { open: boolean; onClose: () => voi
       .single();
     if (error) {
       setSaving(false);
-      toast.error(error.message.includes('row-level') ? 'You can only set exams for classes and subjects you teach.' : error.message);
+      toast.error(error.message.includes('row-level') ? 'Your account cannot create exams. Ask an administrator.' : error.message);
       return;
     }
     await supabase.from('exam_sections').insert({ exam_id: data.id, title: '', subject_id: form.subject_id });
@@ -106,8 +108,7 @@ function CreateExamDialog({ open, onClose }: { open: boolean; onClose: () => voi
               <SearchSelect
                 id="exam-class"
                 value={form.class_id}
-                // A teacher's subjects depend on the class, so a new class clears their subject
-                onChange={(v) => setForm({ ...form, class_id: v, subject_id: seesAll ? form.subject_id : '' })}
+                onChange={(v) => setForm({ ...form, class_id: v })}
                 options={classOptions.map((c) => ({ value: c.id, label: c.name }))}
                 placeholder="Choose class"
                 searchPlaceholder="Type a class, e.g. JC1"
@@ -121,20 +122,13 @@ function CreateExamDialog({ open, onClose }: { open: boolean; onClose: () => voi
                 value={form.subject_id}
                 onChange={(v) => setForm({ ...form, subject_id: v })}
                 options={subjectOptions.map((sub) => ({ value: sub.id, label: sub.name }))}
-                placeholder={!seesAll && !form.class_id ? 'Choose the class first' : 'Choose subject'}
+                placeholder="Choose subject"
                 searchPlaceholder="Type a subject, e.g. Mat"
                 emptyText="No subject matches."
-                disabled={!seesAll && !form.class_id}
               />
             </div>
           </div>
-          {!seesAll && classOptions.length === 0 && (
-            <p className="rounded-md border border-amber-300 bg-amber-50 p-2 text-sm text-amber-900">
-              You have no classes yet, so there is nothing to choose. Ask an administrator to assign your classes and subjects under
-              Classes and subjects → Teaching assignments.
-            </p>
-          )}
-          {seesAll && (classes?.length === 0 || subjects?.length === 0) && (
+          {(classes?.length === 0 || subjects?.length === 0) && (
             <p className="text-sm text-muted-foreground">Add classes and subjects first, under Classes and subjects.</p>
           )}
         </div>

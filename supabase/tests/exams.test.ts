@@ -237,9 +237,22 @@ describe('publishing and editing', () => {
     await expect(t.as(teacher, `update exams set status = 'published' where id = $1`, [id])).rejects.toThrow(/publish_exam/);
   });
 
-  it('stops a teacher creating exams for a subject they do not teach', async () => {
+  it('lets any teacher set an exam for any class, and manage only their own', async () => {
+    const [{ id }] = await t.as<{ id: string }>(
+      otherTeacher,
+      `insert into exams (title, duration_minutes, class_id, subject_id, created_by) values ('Any class', 10, $1, $2, $3) returning id`,
+      [classId, subjectId, otherTeacher],
+    );
+    // The author can edit it; a teacher who neither wrote it nor teaches the class cannot
+    const third = await t.createUser('teacher');
+    await t.as(third, `update exams set title = 'Changed' where id = $1`, [id]);
+    const [{ title }] = await t.as<{ title: string }>(null, `select title from exams where id = $1`, [id]);
+    expect(title).toBe('Any class');
+  });
+
+  it('stops a teacher creating entrance exams', async () => {
     await expect(
-      t.as(otherTeacher, `insert into exams (title, duration_minutes, class_id, subject_id, created_by) values ('X', 10, $1, $2, $3)`, [classId, subjectId, otherTeacher]),
+      t.as(otherTeacher, `insert into exams (title, kind, duration_minutes, created_by) values ('E', 'entrance', 10, $1)`, [otherTeacher]),
     ).rejects.toThrow(/row-level security/);
   });
 
