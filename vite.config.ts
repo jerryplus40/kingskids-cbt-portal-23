@@ -14,7 +14,9 @@ export default defineConfig(() => ({
     // A service worker keeps the app itself on the device, so a page reload during an internet
     // outage still opens the exam screen. API calls are never cached.
     VitePWA({
-      registerType: 'autoUpdate',
+      // 'prompt' lets src/lib/registerServiceWorker.ts choose when to apply updates (never mid-exam)
+      registerType: 'prompt',
+      injectRegister: false,
       manifest: false,
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
