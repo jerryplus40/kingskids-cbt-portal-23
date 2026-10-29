@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { PageHeader } from '@/components/PageHeader';
 import { DataTable } from '@/components/DataTable';
+import { SearchSelect } from '@/components/SearchSelect';
 import { useAuth } from '@/auth/AuthProvider';
 import { useClassSubjects, useClasses, useSchoolSettings, useSubjects } from '@/hooks/useReferenceData';
 import { supabase } from '@/lib/supabase';
@@ -101,23 +102,36 @@ function CreateExamDialog({ open, onClose }: { open: boolean; onClose: () => voi
               <Input type="number" min={1} max={600} value={form.duration} onChange={(e) => setForm({ ...form, duration: Number(e.target.value) })} />
             </div>
             <div className="space-y-1">
-              <Label>Class</Label>
-              <Select value={form.class_id} onValueChange={(v) => setForm({ ...form, class_id: v, subject_id: '' })}>
-                <SelectTrigger><SelectValue placeholder="Choose" /></SelectTrigger>
-                <SelectContent>{classOptions.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
-              </Select>
+              <Label htmlFor="exam-class">Class</Label>
+              <SearchSelect
+                id="exam-class"
+                value={form.class_id}
+                // A teacher's subjects depend on the class, so a new class clears their subject
+                onChange={(v) => setForm({ ...form, class_id: v, subject_id: seesAll ? form.subject_id : '' })}
+                options={classOptions.map((c) => ({ value: c.id, label: c.name }))}
+                placeholder="Choose class"
+                searchPlaceholder="Type a class, e.g. JC1"
+                emptyText="No class matches."
+              />
             </div>
             <div className="space-y-1">
-              <Label>Subject</Label>
-              <Select value={form.subject_id} onValueChange={(v) => setForm({ ...form, subject_id: v })} disabled={!form.class_id}>
-                <SelectTrigger><SelectValue placeholder="Choose" /></SelectTrigger>
-                <SelectContent>{subjectOptions.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
-              </Select>
+              <Label htmlFor="exam-subject">Subject</Label>
+              <SearchSelect
+                id="exam-subject"
+                value={form.subject_id}
+                onChange={(v) => setForm({ ...form, subject_id: v })}
+                options={subjectOptions.map((sub) => ({ value: sub.id, label: sub.name }))}
+                placeholder={!seesAll && !form.class_id ? 'Choose the class first' : 'Choose subject'}
+                searchPlaceholder="Type a subject, e.g. Mat"
+                emptyText="No subject matches."
+                disabled={!seesAll && !form.class_id}
+              />
             </div>
           </div>
           {!seesAll && classOptions.length === 0 && (
-            <p className="text-sm text-muted-foreground">
-              No classes are assigned to you yet. An administrator assigns them under Classes and subjects → Teaching assignments.
+            <p className="rounded-md border border-amber-300 bg-amber-50 p-2 text-sm text-amber-900">
+              You have no classes yet, so there is nothing to choose. Ask an administrator to assign your classes and subjects under
+              Classes and subjects → Teaching assignments.
             </p>
           )}
           {seesAll && (classes?.length === 0 || subjects?.length === 0) && (
